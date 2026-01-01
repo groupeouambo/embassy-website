@@ -1,0 +1,255 @@
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.success-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.success-icon {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  animation: scaleIn 0.5s ease 0.2s both;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.success-card h1 {
+  color: #10b981;
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 1.8rem;
+}
+
+.success-message {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+.tracking-section {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #10b981;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.tracking-section h3 {
+  color: #065f46;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.tracking-number {
+  font-family: 'Courier New', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #047857;
+  background: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 8px;
+  border: 2px dashed #10b981;
+}
+
+.tracking-info {
+  color: #065f46;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.barcode-section {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.barcode-section h3 {
+  color: var(--primary);
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+.barcode-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+
+.barcode-container svg {
+  display: block;
+}
+
+.barcode-info {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.btn-download,
+.btn-dashboard,
+.btn-close-success {
+  padding: 14px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: #ffffff;
+}
+
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(11, 59, 122, 0.3);
+}
+
+.btn-dashboard {
+  background: #10b981;
+  color: #ffffff;
+}
+
+.btn-dashboard:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+}
+
+.btn-close-success {
+  background: #ffffff;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.btn-close-success:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.next-steps {
+  background: #fffbeb;
+  border-left: 4px solid #f59e0b;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.next-steps h3 {
+  color: #92400e;
+  margin-bottom: 12px;
+  font-size: 1.05rem;
+}
+
+.next-steps ol {
+  margin: 0;
+  padding-left: 20px;
+  color: #78350f;
+}
+
+.next-steps li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.next-steps li:last-child {
+  margin-bottom: 0;
+}
+
+.contact-reminder {
+  text-align: center;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  color: #4b5563;
+}
+
+.contact-reminder p {
+  margin: 4px 0;
+}
+
+.contact-reminder strong {
+  color: var(--primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .success-card {
+    padding: 24px;
+  }
+
+  .success-card h1 {
+    font-size: 1.4rem;
+  }
+
+  .tracking-number {
+    font-size: 1.2rem;
+  }
+
+  .barcode-container {
+    padding: 12px;
+  }
+}

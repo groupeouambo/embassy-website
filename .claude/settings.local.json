@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run migrate:*)",
+      "Bash(npm run migrate:applications:*)",
+      "Bash(npm start)",
+      "Bash(dir:*)",
+      "Bash(npm run build:*)",
+      "Bash(powershell -Command \"Compress-Archive -Path build,server,public,.env.example,DEPLOYMENT_INSTRUCTIONS.md -DestinationPath deployment-package.zip -Force\")",
+      "Bash(node index.js:*)",
+      "Bash(taskkill:*)",
+      "Bash(cat:*)",
+      "Bash(node fix-database.js:*)",
+      "Bash(timeout 20 type:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(timeout 3 type:*)",
+      "Bash(findstr:*)",
+      "Bash(node -e:*)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(node add-shipping-carrier.js:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(del nul)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)",
+      "Bash(git rm:*)",
+      "Bash(git remote:*)"
+    ]
+  }
+}

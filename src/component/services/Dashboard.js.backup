@@ -1,0 +1,177 @@
+import React, { useEffect, useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import './signup.css';
+import { useI18n } from '../../i18n';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../api';
+
+export default function Dashboard() {
+  const navigate = useNavigate();
+  const { t } = useI18n();
+  const { user, isAuthenticated, logout } = useAuth();
+  const [apps, setApps] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isAuthenticated() || !user) {
+      navigate('/signin');
+      return;
+    }
+
+    api
+      .getUserApplications(user.username)
+      .then((data) => setApps(data))
+      .catch((err) => {
+        console.error('Failed to load applications:', err);
+        setApps([]);
+      })
+      .finally(() => setLoading(false));
+  }, [user, isAuthenticated, navigate]);
+
+  const quickStats = [
+    { label: t('dashboard.applications'), value: apps.length },
+    { label: 'Pending', value: apps.filter(a => a.status === 'pending').length },
+    { label: 'Under Review', value: apps.filter(a => a.status === 'under_review').length },
+    { label: 'Approved', value: apps.filter(a => a.status === 'approved').length },
+  ];
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      pending: 'Pending',
+      under_review: 'Under Review',
+      approved: 'Approved',
+      denied: 'Denied',
+      shipped: 'Shipped',
+    };
+    return labels[status] || status;
+  };
+
+  const getStatusStyle = (status) => {
+    const styles = {
+      pending: { background: '#fff7ed', color: '#f59e0b', border: '1px solid #fed7aa' },
+      under_review: { background: '#eff6ff', color: '#3b82f6', border: '1px solid #bfdbfe' },
+      approved: { background: '#f0fdf4', color: '#10b981', border: '1px solid #bbf7d0' },
+      denied: { background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca' },
+      shipped: { background: '#faf5ff', color: '#8b5cf6', border: '1px solid #e9d5ff' },
+    };
+    return styles[status] || {};
+  };
+
+  const recent = apps.slice(0, 5);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <div className="signup-shell user-dashboard">
+      <div className="user-top">
+        <div className="avatar-placeholder">US</div>
+        <div>
+          <h1>{t('dashboard.userTitle')}</h1>
+          <p className="signup-lead">{t('dashboard.userLead')}</p>
+        </div>
+        <button className="outline-btn" onClick={handleLogout}>
+          {t('auth.logout')}
+        </button>
+      </div>
+
+      <div className="user-card-grid">
+        {quickStats.map((stat) => (
+          <div className="user-card" key={stat.label}>
+            <div className="card-value">{stat.value}</div>
+            <div className="card-label">{stat.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="user-actions">
+        <button className="primary-btn" onClick={() => navigate('/visaapplication')}>
+          {t('dashboard.start')}
+        </button>
+        <Link className="primary-btn" style={{ textAlign: 'center' }} to="/download">
+          {t('dashboard.download')}
+        </Link>
+        <button className="primary-btn" onClick={() => navigate('/dashboard/applications')}>
+          {t('dashboard.viewApps')}
+        </button>
+      </div>
+
+      <div className="user-recent">
+        <div className="recent-header">
+          <h3>{t('dashboard.applications')}</h3>
+          <button className="outline-btn" onClick={() => navigate('/dashboard/applications')}>
+            {t('dashboard.viewApps')}
+          </button>
+        </div>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>
+            Loading applications...
+          </div>
+        ) : recent.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '24px', color: '#6b7280' }}>
+            No applications yet. Start your first visa application!
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+            {recent.map((row) => (
+              <div
+                key={row.id}
+                style={{
+                  padding: '16px',
+                  background: '#ffffff',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontWeight: 600, color: '#1f2937', fontSize: '1rem' }}>
+                      Application #{row.id}
+                    </div>
+                    <div style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                      Submitted {row.createdAt ? new Date(row.createdAt).toLocaleDateString() : 'N/A'}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      ...getStatusStyle(row.status),
+                    }}
+                  >
+                    {getStatusLabel(row.status)}
+                  </div>
+                </div>
+                {row.tracking_number && (
+                  <div
+                    style={{
+                      marginTop: '8px',
+                      padding: '12px',
+                      background: '#f9fafb',
+                      borderRadius: '8px',
+                      border: '1px solid #e5e7eb',
+                    }}
+                  >
+                    <div style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '4px' }}>
+                      Tracking Number
+                    </div>
+                    <div style={{ color: '#0b2f63', fontWeight: 700, fontSize: '1.125rem', letterSpacing: '0.5px' }}>
+                      {row.tracking_number}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

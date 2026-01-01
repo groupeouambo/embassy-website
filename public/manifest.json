@@ -1,0 +1,8 @@
+{
+  "short_name": "Embassy RCA",
+  "name": "Ambassade de la République Centrafricaine",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#0b2f63",
+  "background_color": "#ffffff"
+}

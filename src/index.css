@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #0b3b7a;
+  --primary-dark: #072b5a;
+  --accent: #f0a500;
+  --text: #0f172a;
+  --muted: #4b5563;
+  --surface: #ffffff;
+  --surface-alt: #f5f7fb;
+  --shadow: 0 20px 45px rgba(7, 43, 90, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: linear-gradient(180deg, #f7f9ff 0%, #eef2f9 50%, #f8fafc 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+}

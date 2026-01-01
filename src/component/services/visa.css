@@ -1,0 +1,78 @@
+.visa-container {
+    width: 60%;
+    margin: auto;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 100px;
+    margin-bottom: 100px;
+  }
+  
+  .visa-title {
+    font-size: 2em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  .visa-notice {
+    font-size: 1.25em;
+    color: #555;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  
+  .visa-content {
+    color: #444;
+    text-align: left;
+  }
+  
+  .visa-content strong {
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .visa-content ul {
+    list-style-position: inside; /* Ensures bullets align closer to text */
+    margin: 10px 0;
+    padding-left: 0; /* Removes default padding */
+  }
+  
+  .visa-content li {
+    margin-bottom: 5px; /* Adds slight space between list items */
+  }
+  .visa-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Adds space between buttons */
+    margin-top: 20px;
+  }
+  
+  .apply-button,
+  .download-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+  }
+  
+  .apply-button:hover,
+  .download-button:hover {
+    background-color: #45a049;
+  }
+  
+  .pdf-icon {
+    font-size: 1.2em; /* Adjust icon size as needed */
+    color: white; /* Set icon color to match text */
+  }
+  
