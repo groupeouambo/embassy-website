@@ -35,6 +35,7 @@ export default function UserApplications() {
   // Initial load
   useEffect(() => {
     fetchApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, navigate, authLoading]);
 
   // Auto-refresh every 30 seconds
@@ -46,6 +47,7 @@ export default function UserApplications() {
     }, 30000);
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, authLoading]);
 
   const formatLastUpdate = () => {

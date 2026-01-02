@@ -8,7 +8,7 @@ import './applicationForms.css';
 
 export default function BirthCertificateApplication() {
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);

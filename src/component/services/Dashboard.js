@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './ModernDashboard.css';
-import { useI18n } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { downloadBarcode } from '../../utils/BarcodeGenerator';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { t } = useI18n();
   const { user, isAuthenticated, logout, loading: authLoading } = useAuth();
   const [apps, setApps] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +38,7 @@ export default function Dashboard() {
   // Initial load
   useEffect(() => {
     fetchApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, navigate, authLoading]);
 
   // Auto-refresh every 30 seconds
@@ -51,6 +50,7 @@ export default function Dashboard() {
     }, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, authLoading]);
 
   const getUserInitials = () => {

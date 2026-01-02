@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../../api';
 import './chatWidget.css';
 
@@ -32,12 +32,32 @@ export default function ChatWidget() {
     setSessionId(storedSessionId);
   }, []);
 
+  const loadConversationHistory = useCallback(async () => {
+    setIsLoadingHistory(true);
+    try {
+      const data = await api.getChatSession(sessionId);
+
+      if (data.conversation && data.messages.length > 0) {
+        // Conversation exists, load history
+        setConversationId(data.conversation.id);
+        setUserName(data.conversation.user_name);
+        setUserEmail(data.conversation.user_email);
+        setMessages(data.messages);
+        setStep('chat');
+      }
+    } catch (err) {
+      console.error('Failed to load chat history:', err);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  }, [sessionId]);
+
   // Load conversation history when opening chat
   useEffect(() => {
     if (isOpen && sessionId && !isLoadingHistory) {
       loadConversationHistory();
     }
-  }, [isOpen, sessionId]);
+  }, [isOpen, sessionId, isLoadingHistory, loadConversationHistory]);
 
   // Poll for new messages when in chat mode
   useEffect(() => {
@@ -65,26 +85,6 @@ export default function ChatWidget() {
     scrollToBottom();
   }, [messages]);
 
-  const loadConversationHistory = async () => {
-    setIsLoadingHistory(true);
-    try {
-      const data = await api.getChatSession(sessionId);
-
-      if (data.conversation && data.messages.length > 0) {
-        // Conversation exists, load history
-        setConversationId(data.conversation.id);
-        setUserName(data.conversation.user_name);
-        setUserEmail(data.conversation.user_email);
-        setMessages(data.messages);
-        setStep('chat');
-      }
-    } catch (err) {
-      console.error('Failed to load chat history:', err);
-    } finally {
-      setIsLoadingHistory(false);
-    }
-  };
-
   const saveMessage = async (senderType, senderName, messageText) => {
     try {
       await api.saveChatMessage(sessionId, senderType, senderName, messageText);
@@ -110,7 +110,7 @@ export default function ChatWidget() {
     const lowerText = userText.toLowerCase();
 
     // Visa-related queries
-    if (lowerText.includes('visa') || lowerText.includes('apply') && lowerText.includes('visa')) {
+    if (lowerText.includes('visa') || (lowerText.includes('apply') && lowerText.includes('visa'))) {
       return {
         text: 'To apply for a visa, please visit our Visa Application page. You can find it in the Services menu at the top of the page. You\'ll need a valid passport, completed application form, passport photos, and supporting documents. Our team will reach out to you soon with more details!',
         link: '/visa',

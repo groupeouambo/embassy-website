@@ -17,6 +17,7 @@ export default function AdminApplicationsNew() {
 
   useEffect(() => {
     loadApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const loadApplications = async () => {
@@ -79,6 +80,8 @@ export default function AdminApplicationsNew() {
         case 'travel':
           await api.updateTravelPassStatus(id, newStatus);
           break;
+        default:
+          throw new Error('Invalid application type');
       }
       await loadApplications();
       setStatusUpdate({ id: null, status: '', loading: false });
@@ -109,6 +112,8 @@ export default function AdminApplicationsNew() {
         case 'travel':
           await api.updateTravelPassTracking(id, trackingUpdate.number, trackingUpdate.carrier);
           break;
+        default:
+          throw new Error('Invalid application type');
       }
       await loadApplications();
       setTrackingUpdate({ id: null, number: '', carrier: '', loading: false });
@@ -234,6 +239,8 @@ export default function AdminApplicationsNew() {
             <th style={{ padding: '12px', textAlign: 'left', fontWeight: 600, color: '#374151' }}>Actions</th>
           </>
         );
+      default:
+        return null;
     }
   };
 
@@ -396,6 +403,8 @@ export default function AdminApplicationsNew() {
             </td>
           </tr>
         );
+      default:
+        return null;
     }
   };
 

@@ -11,7 +11,6 @@ export default function AdminSite() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdate, setLastUpdate] = useState(new Date());
-  const [timeRange, setTimeRange] = useState('last 30 days');
 
   const fetchAnalytics = async () => {
     try {
@@ -104,7 +103,7 @@ export default function AdminSite() {
               <span className="analytics-pill">Site</span>
             </div>
             <div className="analytics-sub">
-              <span>Your key stats for the {timeRange}</span>
+              <span>Your key stats for the last 30 days</span>
               <span>Updated {formatLastUpdate()}</span>
             </div>
           </div>
