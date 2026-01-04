@@ -30,7 +30,11 @@
       "Bash(git push:*)",
       "Bash(git rm:*)",
       "Bash(git remote:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(test:*)",
+      "Bash(git lfs install:*)",
+      "Bash(git lfs track:*)",
+      "Bash(git lfs ls-files:*)"
     ]
   }
 }
