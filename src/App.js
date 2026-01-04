@@ -15,6 +15,8 @@ import Visaaplication from './component/visaapplication/Visaaplication';
 import Visaaplications from './component/visaapplication/Visaaplications';
 import Signup from './component/services/Signup';
 import Signin from './component/services/Signin';
+import ForgotPassword from './component/services/ForgotPassword';
+import ResetPassword from './component/services/ResetPassword';
 import Dashboard from './component/services/Dashboard';
 import AdminDashboard from './component/services/AdminDashboard';
 import AdminApplications from './component/services/AdminApplications';
@@ -92,6 +94,8 @@ function App() {
             <Route path="/visa" element={<Visa />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/applications" element={<UserApplications />} />
             <Route path="/apply-info/visa" element={<VisaInfo />} />

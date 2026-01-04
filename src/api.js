@@ -186,6 +186,22 @@ export const api = {
     }),
   closeChatConversation: (conversationId) =>
     apiFetch(`/api/chat/conversations/${conversationId}/close`, { method: 'PUT' }),
+
+  // Application tracking
+  trackApplication: (trackingNumber) =>
+    apiFetch(`/api/track/${encodeURIComponent(trackingNumber)}`),
+
+  // Password recovery
+  requestPasswordReset: (email) =>
+    apiFetch('/api/password-reset/request', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+  resetPassword: (token, newPassword) =>
+    apiFetch('/api/password-reset/reset', {
+      method: 'POST',
+      body: JSON.stringify({ token, newPassword }),
+    }),
 };
 
 export { API_BASE };

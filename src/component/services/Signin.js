@@ -99,7 +99,13 @@ export default function Signin() {
         </button>
       </form>
 
-      <p className="signup-lead" style={{ marginTop: '24px', marginBottom: 0 }}>
+      <p className="signup-lead" style={{ marginTop: '16px', marginBottom: '8px' }}>
+        <Link to="/forgot-password" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
+          Forgot Password?
+        </Link>
+      </p>
+
+      <p className="signup-lead" style={{ marginTop: '8px', marginBottom: 0 }}>
         {t('auth.dontHave')}{' '}
         <Link to="/signup" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
           {t('auth.signup')}

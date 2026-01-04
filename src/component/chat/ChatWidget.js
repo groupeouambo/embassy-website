@@ -16,10 +16,15 @@ export default function ChatWidget() {
   const [inputValue, setInputValue] = useState('');
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [step, setStep] = useState('name'); // name, email, chat
+  const [language, setLanguage] = useState(''); // en or fr
+  const [step, setStep] = useState('language'); // language, name, email, chat
   const [sessionId, setSessionId] = useState(null);
   const [conversationId, setConversationId] = useState(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [trackingCode, setTrackingCode] = useState('');
+  const [trackingResult, setTrackingResult] = useState(null);
+  const [trackingError, setTrackingError] = useState('');
   const messagesEndRef = useRef(null);
 
   // Generate or retrieve session ID
@@ -44,6 +49,9 @@ export default function ChatWidget() {
         setUserEmail(data.conversation.user_email);
         setMessages(data.messages);
         setStep('chat');
+        // Assume language was selected if conversation exists
+        const savedLang = localStorage.getItem('chatLanguage') || 'en';
+        setLanguage(savedLang);
       }
     } catch (err) {
       console.error('Failed to load chat history:', err);
@@ -106,72 +114,168 @@ export default function ChatWidget() {
     setIsOpen(!isOpen);
   };
 
+  const t = (key) => {
+    const translations = {
+      en: {
+        welcome: 'Hello! Welcome to the Central African Republic Embassy.',
+        selectLanguage: 'Please select your preferred language:',
+        askName: 'To better assist you, may I have your name?',
+        askEmail: 'Could you please provide your email address so we can reach out to you?',
+        thanksWelcome: 'Thank you! How can I assist you today? I can help you with:',
+        visaHelp: '• Visa applications and requirements',
+        birthHelp: '• Birth/Marriage certificates',
+        travelHelp: '• Travel pass (emergency travel documents)',
+        contactHelp: '• Contact information and hours',
+        trackingHelp: '• Track your application',
+        generalHelp: '• General inquiries',
+        trackApplication: 'Track Application',
+        enterTracking: 'Enter your tracking number:',
+        trackingNotFound: 'Application not found. Please check your tracking number and try again.',
+        trackingFound: 'Application found!',
+        visaResponse: 'To apply for a visa, please visit our Visa Application page. You can find it in the Services menu at the top of the page. You\'ll need a valid passport, completed application form, passport photos, and supporting documents. Our team will reach out to you soon with more details!',
+        requirementResponse: 'General visa requirements include:\n• Valid passport (at least 6 months validity)\n• Completed visa application form\n• 2 passport-size photos\n• Proof of travel purpose\n• Proof of accommodation\n• Financial statements\n\nWe will contact you shortly to assist further!',
+        birthResponse: 'For birth certificate applications, you can download the form and submit your application online. We will reach out to you as soon as possible to guide you through the process!',
+        marriageResponse: 'For marriage certificate applications, you can download the form and submit your application online. Our team will contact you shortly with further assistance!',
+        travelResponse: 'For emergency travel documents (Laissez-Passer), this is for situations where your passport is lost, stolen, or expired. We will reach out to you soon to help with your application!',
+        contactResponse: 'You can reach us at:\n📞 Phone: +1 (202) 483-7800\n📧 Email: info@rcaembassy.org\n📍 Address: 2704 Ontario Rd NW, Washington, DC 20009\n\nOur team will also reach out to you at the email you provided!',
+        hoursResponse: 'Our embassy hours are Monday-Friday, 9:00 AM - 5:00 PM EST. We will contact you during business hours to assist you further!',
+        appointmentResponse: 'To schedule an appointment, please call us at +1 (202) 483-7800 or email info@rcaembassy.org. Our team will reach out to you shortly to help schedule a convenient time!',
+      },
+      fr: {
+        welcome: 'Bonjour! Bienvenue à l\'Ambassade de la République Centrafricaine.',
+        selectLanguage: 'Veuillez sélectionner votre langue préférée:',
+        askName: 'Pour mieux vous aider, puis-je avoir votre nom?',
+        askEmail: 'Pourriez-vous s\'il vous plaît fournir votre adresse e-mail afin que nous puissions vous contacter?',
+        thanksWelcome: 'Merci! Comment puis-je vous aider aujourd\'hui? Je peux vous aider avec:',
+        visaHelp: '• Demandes de visa et exigences',
+        birthHelp: '• Actes de naissance/mariage',
+        travelHelp: '• Laissez-passer (documents de voyage d\'urgence)',
+        contactHelp: '• Informations de contact et horaires',
+        trackingHelp: '• Suivre votre demande',
+        generalHelp: '• Demandes générales',
+        trackApplication: 'Suivre la demande',
+        enterTracking: 'Entrez votre numéro de suivi:',
+        trackingNotFound: 'Demande non trouvée. Veuillez vérifier votre numéro de suivi et réessayer.',
+        trackingFound: 'Demande trouvée!',
+        visaResponse: 'Pour demander un visa, veuillez visiter notre page de demande de visa. Vous la trouverez dans le menu Services en haut de la page. Vous aurez besoin d\'un passeport valide, d\'un formulaire de demande rempli, de photos d\'identité et de documents justificatifs. Notre équipe vous contactera bientôt avec plus de détails!',
+        requirementResponse: 'Les exigences générales pour le visa incluent:\n• Passeport valide (au moins 6 mois de validité)\n• Formulaire de demande de visa rempli\n• 2 photos d\'identité\n• Preuve de motif de voyage\n• Preuve d\'hébergement\n• Relevés financiers\n\nNous vous contacterons sous peu pour vous aider davantage!',
+        birthResponse: 'Pour les demandes d\'acte de naissance, vous pouvez télécharger le formulaire et soumettre votre demande en ligne. Nous vous contacterons dès que possible pour vous guider dans le processus!',
+        marriageResponse: 'Pour les demandes d\'acte de mariage, vous pouvez télécharger le formulaire et soumettre votre demande en ligne. Notre équipe vous contactera sous peu pour vous aider!',
+        travelResponse: 'Pour les documents de voyage d\'urgence (Laissez-Passer), c\'est pour les situations où votre passeport est perdu, volé ou expiré. Nous vous contacterons bientôt pour vous aider avec votre demande!',
+        contactResponse: 'Vous pouvez nous joindre à:\n📞 Téléphone: +1 (202) 483-7800\n📧 Email: info@rcaembassy.org\n📍 Adresse: 2704 Ontario Rd NW, Washington, DC 20009\n\nNotre équipe vous contactera également à l\'e-mail que vous avez fourni!',
+        hoursResponse: 'Les heures d\'ouverture de notre ambassade sont du lundi au vendredi, de 9h00 à 17h00 EST. Nous vous contacterons pendant les heures ouvrables pour vous aider davantage!',
+        appointmentResponse: 'Pour planifier un rendez-vous, veuillez nous appeler au +1 (202) 483-7800 ou envoyer un e-mail à info@rcaembassy.org. Notre équipe vous contactera sous peu pour planifier un moment convenable!',
+      },
+    };
+    return translations[language]?.[key] || translations.en[key] || key;
+  };
+
+  const handleLanguageSelect = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('chatLanguage', lang);
+
+    const welcomeMsg = {
+      id: Date.now(),
+      message: t('askName'),
+      sender_type: 'bot',
+      sender_name: 'Embassy Bot',
+      created_at: new Date(),
+    };
+    setMessages([...messages, welcomeMsg]);
+    setStep('name');
+  };
+
+  const handleTrackApplication = async () => {
+    if (!trackingCode.trim()) {
+      setTrackingError(t('enterTracking'));
+      return;
+    }
+
+    setTrackingError('');
+    try {
+      const result = await api.trackApplication(trackingCode.trim());
+      setTrackingResult(result);
+    } catch (err) {
+      setTrackingError(t('trackingNotFound'));
+      setTrackingResult(null);
+    }
+  };
+
   const getIntelligentResponse = (userText) => {
     const lowerText = userText.toLowerCase();
 
-    // Visa-related queries
-    if (lowerText.includes('visa') || (lowerText.includes('apply') && lowerText.includes('visa'))) {
+    // Check for tracking request
+    if (lowerText.includes('track') || lowerText.includes('suivi')) {
+      setShowTrackingModal(true);
       return {
-        text: 'To apply for a visa, please visit our Visa Application page. You can find it in the Services menu at the top of the page. You\'ll need a valid passport, completed application form, passport photos, and supporting documents. Our team will reach out to you soon with more details!',
+        text: t('trackingHelp'),
+        action: 'tracking'
+      };
+    }
+
+    // Visa-related queries
+    if (lowerText.includes('visa') || (lowerText.includes('apply') && lowerText.includes('visa')) || lowerText.includes('demande')) {
+      return {
+        text: t('visaResponse'),
         link: '/visa',
         linkText: 'Go to Visa Application'
       };
     }
 
     // Visa requirements
-    if (lowerText.includes('requirement') || lowerText.includes('document') || lowerText.includes('need')) {
+    if (lowerText.includes('requirement') || lowerText.includes('document') || lowerText.includes('need') || lowerText.includes('exigence')) {
       return {
-        text: 'General visa requirements include:\n• Valid passport (at least 6 months validity)\n• Completed visa application form\n• 2 passport-size photos\n• Proof of travel purpose\n• Proof of accommodation\n• Financial statements\n\nWe will contact you shortly to assist further!',
+        text: t('requirementResponse'),
         link: '/visa',
         linkText: 'View Visa Application'
       };
     }
 
     // Birth certificate
-    if (lowerText.includes('birth') && (lowerText.includes('certificate') || lowerText.includes('cert'))) {
+    if ((lowerText.includes('birth') || lowerText.includes('naissance')) && (lowerText.includes('certificate') || lowerText.includes('cert') || lowerText.includes('acte'))) {
       return {
-        text: 'For birth certificate applications, you can download the form and submit your application online. We will reach out to you as soon as possible to guide you through the process!',
+        text: t('birthResponse'),
         link: '/apply/birth-certificate',
         linkText: 'Go to Birth Certificate Application'
       };
     }
 
     // Marriage certificate
-    if (lowerText.includes('marriage') && (lowerText.includes('certificate') || lowerText.includes('cert'))) {
+    if ((lowerText.includes('marriage') || lowerText.includes('mariage')) && (lowerText.includes('certificate') || lowerText.includes('cert') || lowerText.includes('acte'))) {
       return {
-        text: 'For marriage certificate applications, you can download the form and submit your application online. Our team will contact you shortly with further assistance!',
+        text: t('marriageResponse'),
         link: '/apply/marriage',
         linkText: 'Go to Marriage Certificate Application'
       };
     }
 
     // Travel pass
-    if (lowerText.includes('travel') && (lowerText.includes('pass') || lowerText.includes('passport') || lowerText.includes('emergency'))) {
+    if ((lowerText.includes('travel') || lowerText.includes('laissez')) && (lowerText.includes('pass') || lowerText.includes('passport') || lowerText.includes('emergency') || lowerText.includes('passer'))) {
       return {
-        text: 'For emergency travel documents (Laissez-Passer), this is for situations where your passport is lost, stolen, or expired. We will reach out to you soon to help with your application!',
+        text: t('travelResponse'),
         link: '/apply/travel-pass',
         linkText: 'Go to Travel Pass Application'
       };
     }
 
     // Contact information
-    if (lowerText.includes('contact') || lowerText.includes('phone') || lowerText.includes('email') || lowerText.includes('address')) {
+    if (lowerText.includes('contact') || lowerText.includes('phone') || lowerText.includes('email') || lowerText.includes('address') || lowerText.includes('téléphone') || lowerText.includes('adresse')) {
       return {
-        text: 'You can reach us at:\n📞 Phone: +1 (202) 483-7800\n📧 Email: info@rcaembassy.org\n📍 Address: 2704 Ontario Rd NW, Washington, DC 20009\n\nOur team will also reach out to you at the email you provided!'
+        text: t('contactResponse')
       };
     }
 
     // Hours
-    if (lowerText.includes('hour') || lowerText.includes('open') || lowerText.includes('time')) {
+    if (lowerText.includes('hour') || lowerText.includes('open') || lowerText.includes('time') || lowerText.includes('heure') || lowerText.includes('ouvert')) {
       return {
-        text: 'Our embassy hours are Monday-Friday, 9:00 AM - 5:00 PM EST. We will contact you during business hours to assist you further!'
+        text: t('hoursResponse')
       };
     }
 
     // Appointment
-    if (lowerText.includes('appointment') || lowerText.includes('schedule') || lowerText.includes('meeting')) {
+    if (lowerText.includes('appointment') || lowerText.includes('schedule') || lowerText.includes('meeting') || lowerText.includes('rendez-vous')) {
       return {
-        text: 'To schedule an appointment, please call us at +1 (202) 483-7800 or email info@rcaembassy.org. Our team will reach out to you shortly to help schedule a convenient time!'
+        text: t('appointmentResponse')
       };
     }
 
@@ -207,11 +311,11 @@ export default function ChatWidget() {
 
       if (step === 'name') {
         setUserName(currentInput);
-        botReplyText = `Nice to meet you, ${currentInput}! Could you please provide your email address so we can reach out to you?`;
+        botReplyText = t('askEmail');
         setStep('email');
       } else if (step === 'email') {
         setUserEmail(currentInput);
-        botReplyText = `Thank you, ${userName}! How can I assist you today? I can help you with:\n• Visa applications and requirements\n• Birth/Marriage certificates\n• Travel pass (emergency travel documents)\n• Contact information and hours\n• General inquiries`;
+        botReplyText = `${t('thanksWelcome')}\n${t('visaHelp')}\n${t('birthHelp')}\n${t('travelHelp')}\n${t('contactHelp')}\n${t('trackingHelp')}\n${t('generalHelp')}`;
         setStep('chat');
 
         // Create conversation in database
@@ -283,52 +387,171 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div className="chat-widget-messages">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`chat-message ${message.sender_type === 'user' ? 'chat-message-user' : 'chat-message-bot'}`}
-              >
-                <div className="chat-message-content">
-                  <p style={{ whiteSpace: 'pre-line' }}>{message.message}</p>
-                  {message.link && (
-                    <a
-                      href={message.link}
-                      className="chat-message-link"
-                      onClick={() => {
-                        window.location.href = message.link;
-                      }}
-                    >
-                      {message.linkText}
-                    </a>
-                  )}
-                  <span className="chat-message-time">
-                    {new Date(message.created_at).toLocaleTimeString('en-US', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
+            {step === 'language' ? (
+              <div className="chat-language-selection">
+                <p style={{ marginBottom: '16px', fontSize: '14px' }}>
+                  Please select your preferred language / Veuillez sélectionner votre langue préférée:
+                </p>
+                <div style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+                  <button
+                    onClick={() => handleLanguageSelect('en')}
+                    className="language-button"
+                    style={{
+                      padding: '12px 20px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    🇺🇸 English
+                  </button>
+                  <button
+                    onClick={() => handleLanguageSelect('fr')}
+                    className="language-button"
+                    style={{
+                      padding: '12px 20px',
+                      background: 'var(--primary)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                    }}
+                  >
+                    🇫🇷 Français
+                  </button>
                 </div>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+            ) : (
+              <>
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`chat-message ${message.sender_type === 'user' ? 'chat-message-user' : 'chat-message-bot'}`}
+                  >
+                    <div className="chat-message-content">
+                      <p style={{ whiteSpace: 'pre-line' }}>{message.message}</p>
+                      {message.link && (
+                        <a
+                          href={message.link}
+                          className="chat-message-link"
+                          onClick={() => {
+                            window.location.href = message.link;
+                          }}
+                        >
+                          {message.linkText}
+                        </a>
+                      )}
+                      <span className="chat-message-time">
+                        {new Date(message.created_at).toLocaleTimeString('en-US', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </>
+            )}
           </div>
 
           {/* Input */}
-          <form className="chat-widget-input" onSubmit={handleSendMessage}>
-            <input
-              type="text"
-              placeholder="Type your message..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              className="chat-input-field"
-            />
-            <button type="submit" className="chat-send-button" aria-label="Send message">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <line x1="22" y1="2" x2="11" y2="13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M22 2L15 22l-4-9-9-4z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-          </form>
+          {step !== 'language' && (
+            <form className="chat-widget-input" onSubmit={handleSendMessage}>
+              <input
+                type="text"
+                placeholder="Type your message..."
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                className="chat-input-field"
+              />
+              <button type="submit" className="chat-send-button" aria-label="Send message">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <line x1="22" y1="2" x2="11" y2="13" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M22 2L15 22l-4-9-9-4z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </form>
+          )}
+        </div>
+      )}
+
+      {/* Tracking Modal */}
+      {showTrackingModal && (
+        <div className="tracking-modal-overlay" onClick={() => setShowTrackingModal(false)}>
+          <div className="tracking-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="tracking-modal-header">
+              <h3>{t('trackApplication')}</h3>
+              <button onClick={() => setShowTrackingModal(false)} className="tracking-modal-close">×</button>
+            </div>
+            <div className="tracking-modal-body">
+              <p style={{ marginBottom: '12px', fontSize: '14px' }}>{t('enterTracking')}</p>
+              <input
+                type="text"
+                value={trackingCode}
+                onChange={(e) => setTrackingCode(e.target.value)}
+                placeholder="TRACK-XXXXX-XXXXX"
+                className="tracking-input"
+                style={{
+                  width: '100%',
+                  padding: '10px',
+                  border: '1px solid #ddd',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                }}
+              />
+              {trackingError && (
+                <p style={{ color: '#dc2626', fontSize: '13px', marginTop: '8px' }}>{trackingError}</p>
+              )}
+              {trackingResult && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px',
+                  background: '#f0fdf4',
+                  border: '1px solid #86efac',
+                  borderRadius: '6px',
+                }}>
+                  <p style={{ fontWeight: 600, color: '#166534', marginBottom: '8px' }}>{t('trackingFound')}</p>
+                  <p style={{ fontSize: '13px' }}>Status: {trackingResult.status}</p>
+                  <p style={{ fontSize: '13px' }}>Type: {trackingResult.type}</p>
+                </div>
+              )}
+            </div>
+            <div className="tracking-modal-footer" style={{ marginTop: '16px', display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowTrackingModal(false)}
+                style={{
+                  padding: '8px 16px',
+                  background: '#f3f4f6',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                Close
+              </button>
+              <button
+                onClick={handleTrackApplication}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--primary)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                }}
+              >
+                Track
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </>

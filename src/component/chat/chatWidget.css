@@ -254,6 +254,79 @@
   transform: scale(0.95);
 }
 
+/* Language Selection */
+.chat-language-selection {
+  padding: 20px;
+  text-align: center;
+}
+
+.language-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(11, 59, 122, 0.3);
+}
+
+/* Tracking Modal */
+.tracking-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.tracking-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 450px;
+  width: calc(100% - 32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.tracking-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.tracking-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.tracking-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.tracking-modal-close:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
 /* Responsive Design */
 @media (max-width: 480px) {
   .chat-widget-window {
@@ -266,5 +339,9 @@
   .chat-widget-button {
     bottom: 16px;
     right: 16px;
+  }
+
+  .tracking-modal {
+    max-width: calc(100vw - 32px);
   }
 }
