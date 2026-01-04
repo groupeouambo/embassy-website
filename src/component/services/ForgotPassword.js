@@ -33,7 +33,7 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="signup-shell">
+    <div className="signup-shell" style={{ maxWidth: '500px' }}>
       <h1>Forgot Password</h1>
       <p className="signup-lead">Enter your email address and we'll send you a link to reset your password.</p>
       <form className="signup-form" onSubmit={handleSubmit}>

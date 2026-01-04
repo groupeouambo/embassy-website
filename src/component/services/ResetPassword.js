@@ -64,7 +64,7 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
-      <div className="signup-shell">
+      <div className="signup-shell" style={{ maxWidth: '500px' }}>
         <h1>Invalid Reset Link</h1>
         <p className="signup-lead">
           This password reset link is invalid or has expired. Please request a new password reset.
@@ -77,7 +77,7 @@ export default function ResetPassword() {
   }
 
   return (
-    <div className="signup-shell">
+    <div className="signup-shell" style={{ maxWidth: '500px' }}>
       <h1>Reset Password</h1>
       <p className="signup-lead">Enter your new password below.</p>
       <form className="signup-form" onSubmit={handleSubmit}>
