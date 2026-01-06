@@ -1,25 +1,27 @@
 # Mobile Responsiveness Guide
 
 ## Overview
-The embassy application is fully responsive and optimized for mobile phone access. All features work seamlessly across different screen sizes.
+The embassy application is fully responsive and optimized for mobile phone access. All features work seamlessly across different screen sizes with proper text sizing, layout adjustments, and touch-friendly interfaces.
 
 ## Breakpoints
 
 ### Desktop
 - **1024px+**: Full desktop layout
-  - 4-column stats grid
-  - Side-by-side action cards
+  - Multi-column grids
+  - Side-by-side layouts
+  - Full navigation menu
 
 ### Tablet
-- **768px - 1023px**: Tablet layout
-  - 2-column stats grid
-  - 2-column action cards
-  - Stacked header elements
+- **769px - 1023px**: Tablet layout
+  - 2-column grids
+  - Adjusted spacing
+  - Hamburger menu appears at 900px
 
-### Mobile
-- **481px - 767px**: Large mobile layout
-  - Single column layout
-  - Optimized touch targets
+### Large Mobile
+- **481px - 768px**: Large mobile layout
+  - Single column layouts
+  - Hamburger navigation
+  - Optimized touch targets (44x44px minimum)
   - Larger buttons for easier tapping
 
 ### Small Mobile
@@ -27,12 +29,70 @@ The embassy application is fully responsive and optimized for mobile phone acces
   - Full-width elements
   - Maximum readability
   - Optimized for one-handed use
+  - Compact spacing and padding
 
 ---
 
 ## Mobile-Optimized Features
 
-### 1. Chat Widget
+### 1. Navigation Bar (Navbar)
+**Desktop (900px+):**
+- Horizontal menu with centered embassy title
+- All menu items visible in a row
+- Dropdown menus on hover
+
+**Tablet/Mobile (≤900px):**
+- Hamburger menu icon appears
+- Logo on left, title/subtitle centered, hamburger on right
+- Mobile menu slides down when hamburger is clicked
+- Logo size: 80px (tablet), 60px (small mobile), 50px (tiny mobile)
+- Title and subtitle wrap properly with adjusted font sizes
+- Dropdowns become static (no absolute positioning)
+
+**Small Mobile (≤480px):**
+- Logo: 50px width
+- Title: 0.75rem font size
+- Subtitle: 0.6rem font size
+- Hamburger bars: 22px width
+- All text wraps naturally
+
+**Key Features:**
+- Hamburger positioned absolutely on the right
+- Titles positioned with flex, allowing natural wrapping
+- No overflow or text cutoff
+- All menu items stack vertically in mobile view
+- Touch-friendly menu items (full width on mobile)
+
+### 2. Home Page
+**Desktop (900px+):**
+- Two-column layout for ambassador message
+- Multi-column service categories
+- Three carousel items visible
+- Two-column economic pillars
+
+**Tablet (769px-900px):**
+- Single column ambassador message
+- Carousel shows 2 items
+- Gallery height: 360px
+
+**Mobile (481px-768px):**
+- All content stacked vertically
+- Carousel shows one item at a time
+- Carousel arrows hidden
+- Gallery height: 280px
+- Video height: 240px
+- Service categories: single column
+- Economic pillars: single column
+
+**Small Mobile (≤480px):**
+- Minimal padding (8px container)
+- Compact font sizes (14px title, 13px paragraph)
+- Gallery height: 200px
+- Video height: 200px
+- Starlink highlight: single column, compact
+- All sections with reduced spacing
+
+### 3. Chat Widget
 **Tablet (768px):**
 - Window: `calc(100vw - 24px)` width
 - Height: `calc(100vh - 100px)`
