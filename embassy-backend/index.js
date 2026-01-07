@@ -28,6 +28,10 @@ const submissionLogoPath = path.join(__dirname, '..', 'public', 'favicon.png');
 
 const app = express();
 
+// Trust proxy - required for rate limiting behind reverse proxy (Traefik)
+// This allows Express to trust X-Forwarded-For headers
+app.set('trust proxy', true);
+
 // Security middleware
 app.use(helmet());
 app.use(cors({
