@@ -385,6 +385,23 @@
   }
 }
 
+.chip-button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  transition: all 0.2s ease;
+}
+
+.chip-button .chip {
+  display: inline-block;
+}
+
+.chip-button:hover {
+  opacity: 0.85;
+}
+
 @media (max-width: 640px) {
   .contact-page {
     padding: 22px 16px 32px;

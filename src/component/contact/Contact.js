@@ -6,8 +6,9 @@ import { api } from '../../api';
 const contactChannels = [
   {
     label: 'General inquiries',
-    email: 'inf@usrcaembassy.org',
+    email: 'ouambor@yahoo.fr',
     detail: 'Protocol, visas, public affairs, and administration requests.',
+    useForm: true,
   },
   {
     label: 'IM / Consulate',
@@ -28,7 +29,7 @@ const contactChannels = [
 
 const Contact = () => {
   const { t } = useI18n();
-  const [formData, setFormData] = useState({ email: '', feedback: '' });
+  const [formData, setFormData] = useState({ email: '', feedback: '', subject: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -45,14 +46,25 @@ const Contact = () => {
     setSubmitted(false);
 
     try {
-      await api.sendContact({ email: formData.email, message: formData.feedback });
+      await api.sendContact({
+        email: formData.email,
+        message: formData.feedback,
+        subject: formData.subject || 'General Inquiry'
+      });
       setSubmitted(true);
-      setFormData({ email: '', feedback: '' });
+      setFormData({ email: '', feedback: '', subject: '' });
     } catch (err) {
       setError(err.message || 'Unable to send message');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const scrollToForm = (subject) => {
+    setFormData(prev => ({ ...prev, subject }));
+    setTimeout(() => {
+      document.getElementById('contact-form-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   return (
@@ -96,12 +108,22 @@ const Contact = () => {
             <p className="card-label">{channel.label}</p>
             <h3>{channel.label}</h3>
             <p className="card-copy">{channel.detail}</p>
-            <a className="chip" href={`mailto:${channel.email}`}>{channel.email}</a>
+            {channel.useForm ? (
+              <button
+                className="chip chip-button"
+                onClick={() => scrollToForm(channel.label)}
+                type="button"
+              >
+                Use Contact Form
+              </button>
+            ) : (
+              <a className="chip" href={`mailto:${channel.email}`}>{channel.email}</a>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="contact-details card">
+      <div className="contact-details card" id="contact-form-section">
         <div className="contact-details__copy">
           <h3>{t('contact.formTitle')}</h3>
           <p className="card-copy">
@@ -116,6 +138,18 @@ const Contact = () => {
 
         <div className="contact-form">
           <form onSubmit={handleSubmit}>
+            <label htmlFor="subject">
+              Subject (Optional)
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                placeholder="e.g., Visa Inquiry, General Question"
+                value={formData.subject}
+                onChange={handleChange}
+              />
+            </label>
+
             <label htmlFor="email">
               {t('contact.email')}
               <input
@@ -129,7 +163,7 @@ const Contact = () => {
                 autoComplete="email"
               />
             </label>
-            
+
             <label htmlFor="feedback">
               {t('contact.feedback')}
               <textarea
@@ -152,7 +186,7 @@ const Contact = () => {
             )}
             {submitted && (
               <div className="form-success" role="status" aria-live="polite">
-                Thank you for reaching out. Your message has been received.
+                Thank you for reaching out. Your message has been received and a confirmation email has been sent to your address.
               </div>
             )}
           </form>

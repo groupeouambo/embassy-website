@@ -72,7 +72,7 @@ const visitorLimiter = rateLimit({
 
 const PORT = process.env.PORT || 4000;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const CONTACT_TO = process.env.CONTACT_TO || 'ouambo5r@yahoo.fr';
+const CONTACT_TO = process.env.CONTACT_TO || 'ouambor@yahoo.fr';
 const CONTACT_FROM = process.env.CONTACT_FROM || 'no-reply@usrcaembassy.org';
 
 if (SENDGRID_API_KEY) {
@@ -96,20 +96,67 @@ app.get('/', (req, res) => {
 });
 
 app.post('/api/contact', contactValidation, async (req, res) => {
-  const { email, message } = req.body;
+  const { email, message, subject } = req.body;
 
   if (!SENDGRID_API_KEY) {
     return res.status(500).json({ error: 'Email service not configured' });
   }
 
   try {
+    const emailSubject = subject || 'General Inquiry';
+
+    // Send email to embassy (ouambor@yahoo.fr)
     await sgMail.send({
       to: CONTACT_TO,
       from: CONTACT_FROM,
       replyTo: email,
-      subject: 'Contact form message',
-      text: `From: ${email}\n\n${message}`,
+      subject: `${emailSubject} - From: ${email}`,
+      text: `Contact Form Submission\n\nFrom: ${email}\nSubject: ${emailSubject}\n\nMessage:\n${message}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0b3b7a;">Contact Form Submission</h2>
+          <p><strong>From:</strong> ${email}</p>
+          <p><strong>Subject:</strong> ${emailSubject}</p>
+          <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Message:</strong></p>
+            <p style="white-space: pre-wrap;">${message}</p>
+          </div>
+          <p style="color: #666; font-size: 12px;">This message was sent from the embassy website contact form.</p>
+        </div>
+      `,
     });
+
+    // Send confirmation email to user
+    await sgMail.send({
+      to: email,
+      from: CONTACT_FROM,
+      subject: `Confirmation: Your message to CAR Embassy - ${emailSubject}`,
+      text: `Thank you for contacting the Central African Republic Embassy.\n\nWe have received your message and will respond as soon as possible. Most inquiries receive a response within one business day.\n\nYour message:\n${message}\n\nBest regards,\nCentral African Republic Embassy\n2704 Ontario Rd NW, Washington, DC\n(202) 483-7800`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(120deg, #0b3b7a 0%, #082347 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">Message Received</h1>
+          </div>
+          <div style="padding: 30px; background: white; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p>Thank you for contacting the <strong>Central African Republic Embassy</strong>.</p>
+            <p>We have received your message and will respond as soon as possible. Most inquiries receive a response within one business day.</p>
+
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #0b3b7a;">
+              <p style="margin: 0 0 10px 0; color: #666; font-size: 14px;"><strong>Your Message:</strong></p>
+              <p style="white-space: pre-wrap; color: #333; margin: 0;">${message}</p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+              <p style="margin: 5px 0; color: #666;"><strong>Central African Republic Embassy</strong></p>
+              <p style="margin: 5px 0; color: #666;">2704 Ontario Rd NW, Washington, DC</p>
+              <p style="margin: 5px 0; color: #666;">Phone: (202) 483-7800</p>
+              <p style="margin: 5px 0; color: #666;">Email: ${CONTACT_TO}</p>
+            </div>
+          </div>
+        </div>
+      `,
+    });
+
     res.json({ success: true });
   } catch (err) {
     console.error('SendGrid error:', err);
