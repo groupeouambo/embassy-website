@@ -30,11 +30,11 @@ export default function AdminDashboard() {
     fetchStatistics();
   }, []);
 
-  // Auto-refresh every 30 seconds
+  // Auto-refresh every 2 minutes (reduced from 30 seconds to avoid rate limiting)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchStatistics();
-    }, 30000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, []);

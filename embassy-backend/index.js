@@ -40,8 +40,10 @@ app.use(cookieParser());
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: 300, // Increased to 300 requests per 15 minutes
   message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 if (process.env.NODE_ENV === 'production') {
   app.use('/api/', limiter);
@@ -52,9 +54,21 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5, // 5 attempts per 15 minutes
   message: 'Too many login attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/login', authLimiter);
 app.use('/api/signup', authLimiter);
+
+// Lenient rate limit for visitor tracking (non-critical)
+const visitorLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 10, // 10 tracking requests per minute per IP
+  message: 'Too many tracking requests.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+});
 
 const PORT = process.env.PORT || 4000;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
@@ -2140,7 +2154,7 @@ function getClientIp(req) {
 }
 
 // Track visitor endpoint (called from frontend)
-app.post('/api/track-visitor', async (req, res) => {
+app.post('/api/track-visitor', visitorLimiter, async (req, res) => {
   try {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'] || '';

@@ -41,11 +41,11 @@ export default function AdminVisitors() {
     fetchData();
   }, [currentPage, fetchData]);
 
-  // Auto-refresh every 60 seconds
+  // Auto-refresh every 2 minutes (reduced from 1 minute to avoid rate limiting)
   useEffect(() => {
     const interval = setInterval(() => {
       fetchData();
-    }, 60000);
+    }, 120000);
 
     return () => clearInterval(interval);
   }, [fetchData]);
