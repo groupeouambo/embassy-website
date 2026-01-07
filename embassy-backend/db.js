@@ -271,10 +271,14 @@ export const initDB = async () => {
       page_url VARCHAR(500),
       referrer VARCHAR(500),
       session_id VARCHAR(100),
+      user_id INT UNSIGNED,
       visited_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      last_active TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       INDEX idx_ip (ip_address),
       INDEX idx_visited (visited_at),
-      INDEX idx_session (session_id)
+      INDEX idx_session (session_id),
+      INDEX idx_last_active (last_active),
+      INDEX idx_user_id (user_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
 };

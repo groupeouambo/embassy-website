@@ -2325,6 +2325,81 @@ app.get('/api/admin/visitors/recent', authMiddleware, adminMiddleware, async (re
   }
 });
 
+// Heartbeat endpoint - updates last_active timestamp
+app.post('/api/visitor/heartbeat', async (req, res) => {
+  try {
+    const { session_id, page_url } = req.body;
+
+    if (!session_id) {
+      return res.status(400).json({ error: 'Session ID required' });
+    }
+
+    // Update the most recent visitor log for this session
+    await pool.query(
+      `UPDATE visitor_logs
+       SET last_active = CURRENT_TIMESTAMP, page_url = ?
+       WHERE session_id = ?
+       ORDER BY visited_at DESC
+       LIMIT 1`,
+      [page_url || null, session_id]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Heartbeat error:', err);
+    res.status(500).json({ error: 'Failed to update heartbeat' });
+  }
+});
+
+// Get currently online visitors (admin only)
+// Considers visitors online if they've been active in the last 5 minutes
+app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const [onlineVisitors] = await pool.query(
+      `SELECT
+        v.session_id,
+        v.ip_address,
+        v.country,
+        v.city,
+        v.region,
+        v.device_type,
+        v.browser,
+        v.os,
+        v.page_url,
+        v.last_active,
+        v.visited_at,
+        l.username,
+        CONCAT(l.firstname, ' ', l.lastname) as full_name
+       FROM visitor_logs v
+       LEFT JOIN (
+         SELECT DISTINCT session_id, MAX(visited_at) as latest_visit
+         FROM visitor_logs
+         GROUP BY session_id
+       ) latest ON v.session_id = latest.session_id AND v.visited_at = latest.latest_visit
+       LEFT JOIN login l ON v.user_id = l.id
+       WHERE v.last_active >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+       GROUP BY v.session_id
+       ORDER BY v.last_active DESC`
+    );
+
+    // Get count of online visitors
+    const [count] = await pool.query(
+      `SELECT COUNT(DISTINCT session_id) as count
+       FROM visitor_logs
+       WHERE last_active >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)`
+    );
+
+    res.json({
+      visitors: onlineVisitors,
+      count: count[0].count,
+      threshold: '5 minutes'
+    });
+  } catch (err) {
+    console.error('Online visitors error:', err);
+    res.status(500).json({ error: 'Failed to fetch online visitors' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}`);
   try {

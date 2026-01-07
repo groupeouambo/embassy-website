@@ -209,9 +209,15 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+  sendHeartbeat: (data) =>
+    apiFetch('/api/visitor/heartbeat', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
   getVisitorStats: () => apiFetch('/api/admin/visitors/stats'),
   getRecentVisitors: (limit = 50, offset = 0) =>
     apiFetch(`/api/admin/visitors/recent?limit=${limit}&offset=${offset}`),
+  getOnlineVisitors: () => apiFetch('/api/admin/visitors/online'),
 };
 
 export { API_BASE };

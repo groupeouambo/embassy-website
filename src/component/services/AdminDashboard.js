@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaGlobe, FaChartLine, FaUsers, FaCog, FaFileAlt, FaSync, FaComments } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
+import OnlineVisitors from './OnlineVisitors';
 import './adminDashboard.css';
 
 export default function AdminDashboard() {
@@ -206,36 +207,38 @@ export default function AdminDashboard() {
                   </div>
                 </div>
 
-                <div className="panel-card">
-                  <div className="panel-head">
-                    <h2 className="panel-title">Daily Insights</h2>
-                    <p className="panel-subtitle">Based on totals</p>
+                <OnlineVisitors />
+              </div>
+
+              <div className="panel-card">
+                <div className="panel-head">
+                  <h2 className="panel-title">Daily Insights</h2>
+                  <p className="panel-subtitle">Based on totals</p>
+                </div>
+                <div className="insight-grid">
+                  <div className="insight-tile">
+                    <div className="insight-value">
+                      {stats.totals.applications
+                        ? Math.round((stats.totals.approved / stats.totals.applications) * 100)
+                        : 0}%
+                    </div>
+                    <div className="insight-label">Approval rate</div>
                   </div>
-                  <div className="insight-grid">
-                    <div className="insight-tile">
-                      <div className="insight-value">
-                        {stats.totals.applications
-                          ? Math.round((stats.totals.approved / stats.totals.applications) * 100)
-                          : 0}%
-                      </div>
-                      <div className="insight-label">Approval rate</div>
+                  <div className="insight-tile">
+                    <div className="insight-value">
+                      {stats.totals.applications
+                        ? Math.round((stats.totals.pending / stats.totals.applications) * 100)
+                        : 0}%
                     </div>
-                    <div className="insight-tile">
-                      <div className="insight-value">
-                        {stats.totals.applications
-                          ? Math.round((stats.totals.pending / stats.totals.applications) * 100)
-                          : 0}%
-                      </div>
-                      <div className="insight-label">Pending share</div>
+                    <div className="insight-label">Pending share</div>
+                  </div>
+                  <div className="insight-tile">
+                    <div className="insight-value">
+                      {stats.users?.total
+                        ? (stats.totals.applications / stats.users.total).toFixed(1)
+                        : '0.0'}
                     </div>
-                    <div className="insight-tile">
-                      <div className="insight-value">
-                        {stats.users?.total
-                          ? (stats.totals.applications / stats.users.total).toFixed(1)
-                          : '0.0'}
-                      </div>
-                      <div className="insight-label">Apps per user</div>
-                    </div>
+                    <div className="insight-label">Apps per user</div>
                   </div>
                 </div>
               </div>

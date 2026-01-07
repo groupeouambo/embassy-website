@@ -77,11 +77,20 @@ function VisitorTracker() {
   useEffect(() => {
     const trackVisitor = async () => {
       try {
+        // Check if we've already tracked in the last 5 minutes
+        const lastTracked = sessionStorage.getItem('visitor_last_tracked');
+        const now = Date.now();
+
+        if (lastTracked && (now - parseInt(lastTracked)) < 5 * 60 * 1000) {
+          // Skip tracking if within 5 minutes
+          return;
+        }
+
         // Generate or retrieve session ID
         let sessionId = sessionStorage.getItem('visitor_session_id');
         if (!sessionId) {
           sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          sessionStorage.setItem('visitor_session_id', sessionId);
+          sessionStorage.getItem('visitor_session_id', sessionId);
         }
 
         await api.trackVisitor({
@@ -89,12 +98,38 @@ function VisitorTracker() {
           referrer: document.referrer || 'Direct',
           session_id: sessionId,
         });
+
+        // Mark as tracked
+        sessionStorage.setItem('visitor_last_tracked', now.toString());
       } catch (error) {
-        console.error('Failed to track visitor:', error);
+        // Silently fail - tracking is non-critical
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Visitor tracking skipped:', error.message);
+        }
       }
     };
 
     trackVisitor();
+
+    // Send heartbeat every 30 seconds to show user is still active
+    const heartbeatInterval = setInterval(async () => {
+      const sessionId = sessionStorage.getItem('visitor_session_id');
+      if (sessionId) {
+        try {
+          await api.sendHeartbeat({
+            session_id: sessionId,
+            page_url: window.location.href
+          });
+        } catch (error) {
+          // Silently fail
+          if (process.env.NODE_ENV !== 'production') {
+            console.warn('Heartbeat failed:', error.message);
+          }
+        }
+      }
+    }, 30000); // Every 30 seconds
+
+    return () => clearInterval(heartbeatInterval);
   }, []);
 
   return null;
