@@ -35,6 +35,8 @@ import BirthCertificateInfo from './component/services/BirthCertificateInfo';
 import TravelPassInfo from './component/services/TravelPassInfo';
 import ChatWidget from './component/chat/ChatWidget';
 import { initialVisaFormData } from './component/visaapplication/visaFormState';
+import { api } from './api';
+import AdminVisitors from './component/services/AdminVisitors';
 
 const infoPages = [
   { path: '/embassy/mission', title: 'Embassy Mission', description: 'Learn about the objectives and responsibilities of the Central African Republic Embassy.' },
@@ -70,6 +72,34 @@ const servicePages = [
   { path: '/services/diaspora-organization', title: 'Diaspora Organization', description: 'Resources for diaspora organization and participation.' },
 ];
 
+// Visitor tracking component
+function VisitorTracker() {
+  useEffect(() => {
+    const trackVisitor = async () => {
+      try {
+        // Generate or retrieve session ID
+        let sessionId = sessionStorage.getItem('visitor_session_id');
+        if (!sessionId) {
+          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          sessionStorage.setItem('visitor_session_id', sessionId);
+        }
+
+        await api.trackVisitor({
+          page_url: window.location.href,
+          referrer: document.referrer || 'Direct',
+          session_id: sessionId,
+        });
+      } catch (error) {
+        console.error('Failed to track visitor:', error);
+      }
+    };
+
+    trackVisitor();
+  }, []);
+
+  return null;
+}
+
 function App() {
   const [visaFormData, setVisaFormData] = useState(() => {
     const saved = sessionStorage.getItem('visaFormData');
@@ -84,6 +114,7 @@ function App() {
     <AuthProvider>
       <I18nProvider>
         <Router>
+          <VisitorTracker />
           <div className="App">
             <Navbar />
          
@@ -150,6 +181,14 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminSite />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/visitors"
+              element={
+                <AdminRoute>
+                  <AdminVisitors />
                 </AdminRoute>
               }
             />

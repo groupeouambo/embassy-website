@@ -2095,6 +2095,175 @@ app.post('/api/password-reset/reset', async (req, res) => {
   }
 });
 
+// ============================================================================
+// VISITOR TRACKING
+// ============================================================================
+
+// Helper function to parse user agent
+function parseUserAgent(userAgent) {
+  const ua = userAgent || '';
+
+  // Detect device type
+  let deviceType = 'Desktop';
+  if (/mobile|android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) {
+    deviceType = 'Mobile';
+  } else if (/tablet|ipad/i.test(ua)) {
+    deviceType = 'Tablet';
+  }
+
+  // Detect browser
+  let browser = 'Unknown';
+  if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+  else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+  else if (ua.includes('Firefox')) browser = 'Firefox';
+  else if (ua.includes('Edg')) browser = 'Edge';
+  else if (ua.includes('MSIE') || ua.includes('Trident')) browser = 'Internet Explorer';
+
+  // Detect OS
+  let os = 'Unknown';
+  if (ua.includes('Win')) os = 'Windows';
+  else if (ua.includes('Mac')) os = 'macOS';
+  else if (ua.includes('Linux')) os = 'Linux';
+  else if (ua.includes('Android')) os = 'Android';
+  else if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+  return { deviceType, browser, os };
+}
+
+// Helper function to get IP address
+function getClientIp(req) {
+  return req.headers['x-forwarded-for']?.split(',')[0].trim() ||
+         req.headers['x-real-ip'] ||
+         req.connection.remoteAddress ||
+         req.socket.remoteAddress ||
+         'Unknown';
+}
+
+// Track visitor endpoint (called from frontend)
+app.post('/api/track-visitor', async (req, res) => {
+  try {
+    const ip = getClientIp(req);
+    const userAgent = req.headers['user-agent'] || '';
+    const { page_url, referrer, session_id } = req.body;
+
+    const { deviceType, browser, os } = parseUserAgent(userAgent);
+
+    // For IP geolocation, we'll use a free service (ipapi.co)
+    let country = null;
+    let city = null;
+    let region = null;
+
+    try {
+      // Only fetch geolocation for non-local IPs
+      if (ip && ip !== 'Unknown' && !ip.startsWith('127.') && !ip.startsWith('::1')) {
+        const geoResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+        if (geoResponse.ok) {
+          const geoData = await geoResponse.json();
+          country = geoData.country_name || null;
+          city = geoData.city || null;
+          region = geoData.region || null;
+        }
+      }
+    } catch (geoError) {
+      console.error('Geolocation lookup failed:', geoError);
+      // Continue without geolocation data
+    }
+
+    await pool.query(
+      `INSERT INTO visitor_logs
+       (ip_address, country, city, region, user_agent, device_type, browser, os, page_url, referrer, session_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [ip, country, city, region, userAgent, deviceType, browser, os, page_url, referrer, session_id]
+    );
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Visitor tracking error:', err);
+    res.status(500).json({ error: 'Failed to track visitor' });
+  }
+});
+
+// Get visitor statistics (admin only)
+app.get('/api/admin/visitors/stats', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    // Total visitors
+    const [totalVisitors] = await pool.query('SELECT COUNT(*) as count FROM visitor_logs');
+
+    // Unique visitors (by IP)
+    const [uniqueVisitors] = await pool.query('SELECT COUNT(DISTINCT ip_address) as count FROM visitor_logs');
+
+    // Today's visitors
+    const [todayVisitors] = await pool.query(
+      'SELECT COUNT(*) as count FROM visitor_logs WHERE DATE(visited_at) = CURDATE()'
+    );
+
+    // Visitors by device type
+    const [deviceStats] = await pool.query(
+      `SELECT device_type, COUNT(*) as count
+       FROM visitor_logs
+       GROUP BY device_type
+       ORDER BY count DESC`
+    );
+
+    // Visitors by country (top 10)
+    const [countryStats] = await pool.query(
+      `SELECT country, COUNT(*) as count
+       FROM visitor_logs
+       WHERE country IS NOT NULL
+       GROUP BY country
+       ORDER BY count DESC
+       LIMIT 10`
+    );
+
+    // Visitors by browser
+    const [browserStats] = await pool.query(
+      `SELECT browser, COUNT(*) as count
+       FROM visitor_logs
+       GROUP BY browser
+       ORDER BY count DESC`
+    );
+
+    res.json({
+      total: totalVisitors[0].count,
+      unique: uniqueVisitors[0].count,
+      today: todayVisitors[0].count,
+      byDevice: deviceStats,
+      byCountry: countryStats,
+      byBrowser: browserStats,
+    });
+  } catch (err) {
+    console.error('Visitor stats error:', err);
+    res.status(500).json({ error: 'Failed to fetch visitor statistics' });
+  }
+});
+
+// Get recent visitors (admin only)
+app.get('/api/admin/visitors/recent', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const [visitors] = await pool.query(
+      `SELECT * FROM visitor_logs
+       ORDER BY visited_at DESC
+       LIMIT ? OFFSET ?`,
+      [limit, offset]
+    );
+
+    const [total] = await pool.query('SELECT COUNT(*) as count FROM visitor_logs');
+
+    res.json({
+      visitors,
+      total: total[0].count,
+      limit,
+      offset,
+    });
+  } catch (err) {
+    console.error('Recent visitors error:', err);
+    res.status(500).json({ error: 'Failed to fetch recent visitors' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}`);
   try {

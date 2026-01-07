@@ -202,6 +202,16 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ token, newPassword }),
     }),
+
+  // Visitor tracking
+  trackVisitor: (data) =>
+    apiFetch('/api/track-visitor', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  getVisitorStats: () => apiFetch('/api/admin/visitors/stats'),
+  getRecentVisitors: (limit = 50, offset = 0) =>
+    apiFetch(`/api/admin/visitors/recent?limit=${limit}&offset=${offset}`),
 };
 
 export { API_BASE };
