@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS birth_certificate_applications (
   -- Application Status and Tracking
   status ENUM('pending', 'under_review', 'approved', 'denied', 'shipped') DEFAULT 'pending',
   tracking_number VARCHAR(100),
+  shipping_carrier VARCHAR(100),
   status_history TEXT,
   admin_notes TEXT,
 
@@ -126,9 +127,13 @@ CREATE TABLE IF NOT EXISTS marriage_applications (
   spouse1_birth_date DATE NOT NULL,
   spouse1_birth_place VARCHAR(150),
   spouse1_nationality VARCHAR(100) NOT NULL,
+  spouse1_passport_number VARCHAR(50),
   spouse1_address TEXT,
   spouse1_phone VARCHAR(50),
   spouse1_email VARCHAR(150),
+  spouse1_occupation VARCHAR(150),
+  spouse1_father_name VARCHAR(150),
+  spouse1_mother_name VARCHAR(150),
 
   -- Spouse 2 Information
   spouse2_first_name VARCHAR(100) NOT NULL,
@@ -136,9 +141,13 @@ CREATE TABLE IF NOT EXISTS marriage_applications (
   spouse2_birth_date DATE NOT NULL,
   spouse2_birth_place VARCHAR(150),
   spouse2_nationality VARCHAR(100) NOT NULL,
+  spouse2_passport_number VARCHAR(50),
   spouse2_address TEXT,
   spouse2_phone VARCHAR(50),
   spouse2_email VARCHAR(150),
+  spouse2_occupation VARCHAR(150),
+  spouse2_father_name VARCHAR(150),
+  spouse2_mother_name VARCHAR(150),
 
   -- Marriage Details
   marriage_date DATE NOT NULL,
@@ -150,6 +159,7 @@ CREATE TABLE IF NOT EXISTS marriage_applications (
   -- Application Status and Tracking
   status ENUM('pending', 'under_review', 'approved', 'denied', 'shipped') DEFAULT 'pending',
   tracking_number VARCHAR(100),
+  shipping_carrier VARCHAR(100),
   status_history TEXT,
   admin_notes TEXT,
 

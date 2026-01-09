@@ -642,20 +642,22 @@ app.get('/api/visa-applications/:id/pdf', authMiddleware, async (req, res) => {
 app.post('/api/marriage-applications', authMiddleware, async (req, res) => {
   const { user } = req;
   const userName = user.username;
+  const userId = user.id;
 
   try {
     const formData = req.body;
     const [result] = await pool.query(
       `INSERT INTO marriage_applications (
-        user_name, spouse1_first_name, spouse1_last_name, spouse1_birth_date, spouse1_birth_place,
+        user_id, user_name, spouse1_first_name, spouse1_last_name, spouse1_birth_date, spouse1_birth_place,
         spouse1_nationality, spouse1_passport_number, spouse1_address, spouse1_phone, spouse1_email,
         spouse1_occupation, spouse1_father_name, spouse1_mother_name,
         spouse2_first_name, spouse2_last_name, spouse2_birth_date, spouse2_birth_place,
         spouse2_nationality, spouse2_passport_number, spouse2_address, spouse2_phone, spouse2_email,
         spouse2_occupation, spouse2_father_name, spouse2_mother_name,
         marriage_date, marriage_place, marriage_country, marriage_type, certificate_purpose
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
+        userId,
         userName.toLowerCase(),
         formData.spouse1_first_name, formData.spouse1_last_name, formData.spouse1_birth_date, formData.spouse1_birth_place,
         formData.spouse1_nationality, formData.spouse1_passport_number || null, formData.spouse1_address, formData.spouse1_phone, formData.spouse1_email,
