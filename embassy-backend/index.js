@@ -1490,9 +1490,9 @@ app.post('/api/chat/message', async (req, res) => {
   }
 
   try {
-    // Get conversation
+    // Get conversation with user details
     const [conversations] = await pool.query(
-      'SELECT id FROM chat_conversations WHERE session_id = ?',
+      'SELECT * FROM chat_conversations WHERE session_id = ?',
       [sessionId]
     );
 
@@ -1500,7 +1500,8 @@ app.post('/api/chat/message', async (req, res) => {
       return res.status(404).json({ error: 'Conversation not found' });
     }
 
-    const conversationId = conversations[0].id;
+    const conversation = conversations[0];
+    const conversationId = conversation.id;
 
     // Save message
     await pool.query(
@@ -1513,6 +1514,80 @@ app.post('/api/chat/message', async (req, res) => {
       'UPDATE chat_conversations SET last_message_at = NOW() WHERE id = ?',
       [conversationId]
     );
+
+    // Send email notification to admin if message is from user
+    if (senderType === 'user' && SENDGRID_API_KEY) {
+      try {
+        // Get all messages for this conversation to build transcript
+        const [allMessages] = await pool.query(
+          'SELECT * FROM chat_messages WHERE conversation_id = ? ORDER BY created_at ASC',
+          [conversationId]
+        );
+
+        // Build transcript
+        let transcript = '';
+        allMessages.forEach(msg => {
+          const time = new Date(msg.created_at).toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          transcript += `[${time}] ${msg.sender_name} (${msg.sender_type}):\n${msg.message}\n\n`;
+        });
+
+        // Send email to admin
+        await sgMail.send({
+          to: CONTACT_TO,
+          from: CONTACT_FROM,
+          replyTo: conversation.user_email,
+          subject: `New Chat Message from ${conversation.user_name}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #0b2f63 0%, #1e40af 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">💬 New Chat Message</h1>
+              </div>
+
+              <div style="background: #f8fafc; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0b2f63;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Customer Information</h2>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Name:</strong> ${conversation.user_name}</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Email:</strong> ${conversation.user_email}</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Conversation ID:</strong> #${conversationId}</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Latest Message</h2>
+                  <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0; color: #1e293b; line-height: 1.6;">${message}</p>
+                  </div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Full Conversation Transcript</h2>
+                  <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; color: #475569; white-space: pre-wrap; max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb;">${transcript}</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${process.env.FRONTEND_URL || 'https://kessetest.com'}/admin/messages"
+                     style="display: inline-block; background: #0b2f63; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    Reply in Admin Panel
+                  </a>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px;">
+                  <p style="margin: 5px 0;">Central African Republic Embassy</p>
+                  <p style="margin: 5px 0;">Chat Notification System</p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send chat notification email:', emailErr);
+        // Don't fail the request if email fails
+      }
+    }
 
     res.json({ success: true });
   } catch (err) {
