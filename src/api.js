@@ -184,6 +184,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ conversationId, message }),
     }),
+  sendAdminChatReply: (conversationId, senderName, message) =>
+    apiFetch('/api/chat/admin-reply', {
+      method: 'POST',
+      body: JSON.stringify({ conversationId, message }),
+    }),
   closeChatConversation: (conversationId) =>
     apiFetch(`/api/chat/conversations/${conversationId}/close`, { method: 'PUT' }),
 

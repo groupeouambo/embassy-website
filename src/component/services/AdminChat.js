@@ -34,7 +34,8 @@ export default function AdminChat() {
   const loadConversations = async () => {
     try {
       const data = await api.getChatConversations();
-      setConversations(data);
+      const list = Array.isArray(data) ? data : data?.conversations;
+      setConversations(Array.isArray(list) ? list : []);
       setLoading(false);
     } catch (err) {
       console.error('Failed to load conversations:', err);
@@ -45,7 +46,8 @@ export default function AdminChat() {
   const loadMessages = async (conversationId) => {
     try {
       const data = await api.getChatMessages(conversationId);
-      setMessages(data);
+      const list = Array.isArray(data) ? data : data?.messages;
+      setMessages(Array.isArray(list) ? list : []);
       scrollToBottom();
     } catch (err) {
       console.error('Failed to load messages:', err);

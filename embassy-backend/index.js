@@ -1607,7 +1607,7 @@ app.get('/api/chat/conversations', authMiddleware, adminMiddleware, async (req, 
       FROM chat_conversations c
       ORDER BY c.last_message_at DESC
     `);
-    res.json({ conversations });
+    res.json(conversations);
   } catch (err) {
     console.error('Get conversations error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -1623,7 +1623,7 @@ app.get('/api/chat/conversations/:id/messages', authMiddleware, adminMiddleware,
       'SELECT * FROM chat_messages WHERE conversation_id = ? ORDER BY created_at ASC',
       [id]
     );
-    res.json({ messages });
+    res.json(messages);
   } catch (err) {
     console.error('Get messages error:', err);
     res.status(500).json({ error: 'Server error' });
