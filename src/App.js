@@ -20,7 +20,7 @@ import ResetPassword from './component/services/ResetPassword';
 import Dashboard from './component/services/Dashboard';
 import AdminDashboard from './component/services/AdminDashboard';
 import AdminApplications from './component/services/AdminApplications';
-import AdminMessages from './component/services/AdminMessages';
+import AdminChat from './component/services/AdminChat';
 import AdminUsers from './component/services/AdminUsers';
 import AdminSettings from './component/services/AdminSettings';
 import AdminSite from './component/services/AdminSite';
@@ -191,7 +191,7 @@ function App() {
               path="/admin/messages"
               element={
                 <AdminRoute>
-                  <AdminMessages />
+                  <AdminChat />
                 </AdminRoute>
               }
             />
