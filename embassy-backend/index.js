@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === 'production') {
 // Stricter rate limit for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5, // 5 attempts per 15 minutes
+  max: 20, // Increased to 20 attempts per 15 minutes
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -67,7 +67,7 @@ app.use('/api/signup', authLimiter);
 // Lenient rate limit for visitor tracking (non-critical)
 const visitorLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 10, // 10 tracking requests per minute per IP
+  max: 30, // Increased to 30 tracking requests per minute per IP
   message: 'Too many tracking requests.',
   standardHeaders: true,
   legacyHeaders: false,
