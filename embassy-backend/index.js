@@ -56,7 +56,7 @@ if (process.env.NODE_ENV === 'production') {
 // Stricter rate limit for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 20, // Increased to 20 attempts per 15 minutes
+  max: 100, // Increased to 100 attempts per 15 minutes for testing
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
