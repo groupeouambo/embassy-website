@@ -166,7 +166,8 @@ export default function AdminApplicationsNew() {
           return;
       }
 
-      const response = await fetch(`http://localhost:4000${endpoint}`, {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:4000';
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
