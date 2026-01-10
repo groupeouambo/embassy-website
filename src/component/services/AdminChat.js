@@ -15,6 +15,7 @@ export default function AdminChat() {
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -43,12 +44,14 @@ export default function AdminChat() {
     }
   };
 
-  const loadMessages = async (conversationId) => {
+  const loadMessages = async (conversationId, shouldScroll = true) => {
     try {
       const data = await api.getChatMessages(conversationId);
       const list = Array.isArray(data) ? data : data?.messages;
       setMessages(Array.isArray(list) ? list : []);
-      scrollToBottom();
+      if (shouldScroll) {
+        scrollToBottom();
+      }
     } catch (err) {
       console.error('Failed to load messages:', err);
     }
@@ -67,7 +70,7 @@ export default function AdminChat() {
     const interval = setInterval(() => {
       loadConversations();
       if (selectedConversation) {
-        loadMessages(selectedConversation.id);
+        loadMessages(selectedConversation.id, false); // Don't auto-scroll on refresh
       }
     }, 5000);
 
@@ -78,6 +81,10 @@ export default function AdminChat() {
   const handleSelectConversation = (conversation) => {
     setSelectedConversation(conversation);
     loadMessages(conversation.id);
+    // Focus input field after a short delay
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 300);
   };
 
   const handleSendMessage = async (e) => {
@@ -386,6 +393,7 @@ export default function AdminChat() {
                       gap: '12px',
                     }}>
                       <input
+                        ref={inputRef}
                         type="text"
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
