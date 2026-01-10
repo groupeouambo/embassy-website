@@ -1,8 +1,8 @@
 -- MySQL schema for signup/login and basic visa applications
 -- Run this on your HostGator MySQL instance (update DB name/credentials as needed)
 
-CREATE DATABASE IF NOT EXISTS car_embassy;
-USE car_embassy;
+CREATE DATABASE IF NOT EXISTS zirhmute_embassy;
+USE zirhmute_embassy;
 
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
