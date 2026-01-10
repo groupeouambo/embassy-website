@@ -237,6 +237,7 @@ CREATE TABLE IF NOT EXISTS travel_pass_applications (
   -- Application Status and Tracking
   status ENUM('pending', 'under_review', 'approved', 'denied', 'issued', 'collected') DEFAULT 'pending',
   tracking_number VARCHAR(100),
+  shipping_carrier VARCHAR(100),
   status_history TEXT,
   admin_notes TEXT,
   issue_date DATE,
@@ -253,6 +254,34 @@ CREATE TABLE IF NOT EXISTS travel_pass_applications (
   INDEX idx_applicant_name (last_name, first_name),
   INDEX idx_departure_date (departure_date),
   INDEX idx_document_number (document_number)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Chat Conversations table
+CREATE TABLE IF NOT EXISTS chat_conversations (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  session_id VARCHAR(255) NOT NULL UNIQUE,
+  user_name VARCHAR(255) NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  status ENUM('active', 'closed') DEFAULT 'active',
+  last_message_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_session_id (session_id),
+  INDEX idx_user_email (user_email),
+  INDEX idx_status (status),
+  INDEX idx_last_message_at (last_message_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Chat Messages table
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  conversation_id INT UNSIGNED NOT NULL,
+  sender_type ENUM('user', 'bot', 'admin') NOT NULL,
+  sender_name VARCHAR(255) DEFAULT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES chat_conversations(id) ON DELETE CASCADE,
+  INDEX idx_conversation_id (conversation_id),
+  INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Insert an admin test user (replace the hash with a real bcrypt hash)
