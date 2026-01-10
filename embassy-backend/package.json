@@ -7,7 +7,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "migrate": "node migrate-visa-status.js",
-    "migrate:applications": "node migrate-applications.js"
+    "migrate:applications": "node migrate-applications.js",
+    "migrate:chat": "node migrate-chat-tables.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^7.7.0",
