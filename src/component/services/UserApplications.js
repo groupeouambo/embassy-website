@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaExternalLinkAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import './signup.css';
@@ -90,6 +91,23 @@ export default function UserApplications() {
     fetchApplications();
   };
 
+  const getTrackingUrl = (carrier, trackingNumber) => {
+    if (!trackingNumber) return null;
+    const carrierLower = carrier?.toLowerCase() || '';
+
+    if (carrierLower.includes('ups')) {
+      return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+    } else if (carrierLower.includes('usps')) {
+      return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${trackingNumber}`;
+    } else if (carrierLower.includes('fedex')) {
+      return `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+    } else if (carrierLower.includes('dhl')) {
+      return `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}`;
+    }
+
+    return null;
+  };
+
   return (
     <div className="signup-shell">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -173,8 +191,53 @@ export default function UserApplications() {
                   {getStatusLabel(app.status)}
                 </span>
               </span>
-              <span style={{ fontFamily: 'monospace', fontSize: '0.9rem', color: 'var(--primary)' }}>
-                {app.trackingNumber || 'N/A'}
+              <span>
+                {app.trackingNumber ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {app.shippingCarrier && (
+                      <div style={{
+                        padding: '4px 8px',
+                        background: '#eff6ff',
+                        border: '1px solid #bfdbfe',
+                        borderRadius: '4px',
+                        color: '#1e40af',
+                        fontWeight: 600,
+                        fontSize: '0.7rem',
+                        textTransform: 'uppercase',
+                        width: 'fit-content',
+                      }}>
+                        {app.shippingCarrier}
+                      </div>
+                    )}
+                    <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#166534', fontWeight: 600 }}>
+                      {app.trackingNumber}
+                    </div>
+                    {getTrackingUrl(app.shippingCarrier, app.trackingNumber) && (
+                      <a
+                        href={getTrackingUrl(app.shippingCarrier, app.trackingNumber)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          padding: '4px 10px',
+                          background: '#3b82f6',
+                          color: '#fff',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          textDecoration: 'none',
+                          width: 'fit-content',
+                        }}
+                      >
+                        Track <FaExternalLinkAlt size={9} />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <span style={{ color: '#9ca3af', fontSize: '0.875rem' }}>N/A</span>
+                )}
               </span>
               <span>{app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'N/A'}</span>
               <span>{app.updatedAt ? new Date(app.updatedAt).toLocaleDateString() : 'N/A'}</span>

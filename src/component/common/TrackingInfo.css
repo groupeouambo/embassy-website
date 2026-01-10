@@ -1,0 +1,192 @@
+.tracking-info {
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.tracking-info-small {
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.tracking-info-large {
+  padding: 24px;
+  margin: 20px 0;
+}
+
+.tracking-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.tracking-icon {
+  color: #3b82f6;
+  font-size: 1.3rem;
+}
+
+.tracking-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tracking-carrier {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 2px solid;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  width: fit-content;
+  background: #ffffff;
+}
+
+.carrier-logo {
+  font-size: 1.4rem;
+}
+
+.carrier-name {
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.tracking-number-display {
+  background: #f1f5f9;
+  border-left: 4px solid #3b82f6;
+  padding: 12px 16px;
+  border-radius: 8px;
+}
+
+.tracking-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.tracking-number-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: 1px;
+  user-select: all;
+}
+
+.track-package-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background: #ffffff;
+  border: 2px solid;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.track-package-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.tracking-note {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-style: italic;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+/* Small variant */
+.tracking-info-small .tracking-header {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.tracking-info-small .tracking-carrier {
+  padding: 6px 12px;
+  font-size: 0.85rem;
+}
+
+.tracking-info-small .carrier-logo {
+  font-size: 1.1rem;
+}
+
+.tracking-info-small .tracking-number-display {
+  padding: 10px 12px;
+}
+
+.tracking-info-small .tracking-number-value {
+  font-size: 0.95rem;
+}
+
+.tracking-info-small .track-package-btn {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+/* Large variant */
+.tracking-info-large .tracking-header {
+  font-size: 1.25rem;
+  margin-bottom: 20px;
+}
+
+.tracking-info-large .tracking-icon {
+  font-size: 1.5rem;
+}
+
+.tracking-info-large .tracking-carrier {
+  padding: 10px 20px;
+  font-size: 1.1rem;
+}
+
+.tracking-info-large .carrier-logo {
+  font-size: 1.6rem;
+}
+
+.tracking-info-large .tracking-number-display {
+  padding: 16px 20px;
+}
+
+.tracking-info-large .tracking-number-value {
+  font-size: 1.3rem;
+}
+
+.tracking-info-large .track-package-btn {
+  padding: 14px 28px;
+  font-size: 1.05rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tracking-info {
+    padding: 16px;
+  }
+
+  .tracking-carrier {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .track-package-btn {
+    width: 100%;
+  }
+}

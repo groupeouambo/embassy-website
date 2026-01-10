@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaGlobe, FaChartLine, FaUsers, FaCog, FaFileAlt, FaComments, FaDownload } from 'react-icons/fa';
+import { FaGlobe, FaChartLine, FaUsers, FaCog, FaFileAlt, FaComments, FaDownload, FaExternalLinkAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import './adminDashboard.css';
@@ -62,6 +62,23 @@ export default function AdminApplicationsNew() {
       .join('')
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const getTrackingUrl = (carrier, trackingNumber) => {
+    if (!trackingNumber) return null;
+    const carrierLower = carrier?.toLowerCase() || '';
+
+    if (carrierLower.includes('ups')) {
+      return `https://www.ups.com/track?tracknum=${trackingNumber}`;
+    } else if (carrierLower.includes('usps')) {
+      return `https://tools.usps.com/go/TrackConfirmAction?tLabels=${trackingNumber}`;
+    } else if (carrierLower.includes('fedex')) {
+      return `https://www.fedex.com/fedextrack/?trknbr=${trackingNumber}`;
+    } else if (carrierLower.includes('dhl')) {
+      return `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}`;
+    }
+
+    return null;
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -469,6 +486,7 @@ export default function AdminApplicationsNew() {
               <option value="usps">USPS</option>
               <option value="ups">UPS</option>
               <option value="fedex">FedEx</option>
+              <option value="dhl">DHL</option>
             </select>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -507,7 +525,7 @@ export default function AdminApplicationsNew() {
         </div>
       ) : app.tracking_number ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
             {app.shipping_carrier && (
               <div style={{
                 padding: '6px 10px',
@@ -534,15 +552,41 @@ export default function AdminApplicationsNew() {
             }}>
               {app.tracking_number}
             </div>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {getTrackingUrl(app.shipping_carrier, app.tracking_number) && (
+              <a
+                href={getTrackingUrl(app.shipping_carrier, app.tracking_number)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  padding: '6px 12px',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: '#3b82f6',
+                  color: '#fff',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                }}
+              >
+                Track Package <FaExternalLinkAlt size={10} />
+              </a>
+            )}
             <button
               onClick={() => setTrackingUpdate({ id: app.id, number: app.tracking_number, carrier: app.shipping_carrier || '', loading: false })}
               style={{
-                padding: '8px 12px',
-                borderRadius: '8px',
+                padding: '6px 12px',
+                borderRadius: '6px',
                 border: '1px solid #e5e7eb',
                 background: '#fff',
                 color: '#6b7280',
                 fontSize: '0.75rem',
+                fontWeight: 600,
                 cursor: 'pointer',
               }}
             >
