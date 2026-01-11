@@ -28,9 +28,9 @@ const submissionLogoPath = path.join(__dirname, '..', 'public', 'favicon.png');
 
 const app = express();
 
-// Trust proxy - required for rate limiting behind reverse proxy (Traefik)
-// This allows Express to trust X-Forwarded-For headers
-app.set('trust proxy', true);
+// Trust proxy - required for rate limiting behind reverse proxy (Traefik/Dokploy)
+// Set to 1 to trust the first proxy in front of the app
+app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet());
@@ -48,6 +48,7 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Disable validation warning since we explicitly set trust proxy to 1
 });
 
 // Skip rate limiting for admin routes (authenticated users)
@@ -89,6 +90,7 @@ const authLimiter = rateLimit({
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false }, // Disable validation warning since we explicitly set trust proxy to 1
 });
 app.use('/api/login', authLimiter);
 app.use('/api/signup', authLimiter);
@@ -101,6 +103,7 @@ const visitorLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skipSuccessfulRequests: false,
+  validate: { trustProxy: false }, // Disable validation warning since we explicitly set trust proxy to 1
 });
 
 const PORT = process.env.PORT || 4000;
