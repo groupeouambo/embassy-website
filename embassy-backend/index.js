@@ -2619,6 +2619,238 @@ app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (re
   }
 });
 
+// ========================================
+// CONTACT FORM REPLY ENDPOINTS
+// ========================================
+
+// Send reply to contact form submission (admin only)
+app.post('/api/contact-replies', authMiddleware, adminMiddleware, async (req, res) => {
+  const { contactEmail, contactSubject, contactMessage, adminReply } = req.body;
+  const adminName = req.user.username;
+
+  if (!contactEmail || !adminReply) {
+    return res.status(400).json({ error: 'Contact email and admin reply are required' });
+  }
+
+  try {
+    // Save reply to database
+    await pool.query(
+      'INSERT INTO contact_form_replies (contact_email, contact_subject, contact_message, admin_reply, admin_name) VALUES (?, ?, ?, ?, ?)',
+      [contactEmail, contactSubject || null, contactMessage || null, adminReply, adminName]
+    );
+
+    // Send email notification to user
+    if (SENDGRID_API_KEY) {
+      try {
+        await sgMail.send({
+          to: contactEmail,
+          from: CONTACT_FROM,
+          subject: `Reply from CAR Embassy - ${contactSubject || 'Your Inquiry'}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #0b2f63 0%, #1e40af 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">📧 Reply from Embassy</h1>
+              </div>
+
+              <div style="background: #f8fafc; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0b2f63;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Your Original Message</h2>
+                  ${contactSubject ? `<p style="margin: 5px 0; color: #475569;"><strong>Subject:</strong> ${contactSubject}</p>` : ''}
+                  ${contactMessage ? `<div style="background: #f0f9ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6; margin-top: 10px;">
+                    <p style="margin: 0; color: #1e293b; line-height: 1.6; white-space: pre-wrap;">${contactMessage}</p>
+                  </div>` : ''}
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Official Reply</h2>
+                  <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #16a34a;">
+                    <p style="margin: 0; color: #166534; line-height: 1.6; white-space: pre-wrap;">${adminReply}</p>
+                  </div>
+                  <p style="margin: 15px 0 0 0; font-size: 0.875rem; color: #6b7280;">
+                    <strong>Replied by:</strong> ${adminName} (Embassy Staff)
+                  </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${process.env.FRONTEND_URL || 'https://kessetest.com'}/contact"
+                     style="display: inline-block; background: #0b2f63; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    Contact Us Again
+                  </a>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px;">
+                  <p style="margin: 5px 0;">Central African Republic Embassy</p>
+                  <p style="margin: 5px 0;">2704 Ontario Rd NW, Washington, DC 20009</p>
+                  <p style="margin: 5px 0;">Phone: (202) 483-7800 | Email: ${CONTACT_TO}</p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send contact reply email:', emailErr);
+        // Don't fail the request if email fails
+      }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Contact reply error:', err);
+    res.status(500).json({ error: 'Failed to send reply' });
+  }
+});
+
+// Get contact form replies (admin only)
+app.get('/api/contact-replies', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM contact_form_replies ORDER BY replied_at DESC'
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Get contact replies error:', err);
+    res.status(500).json({ error: 'Failed to fetch replies' });
+  }
+});
+
+// ========================================
+// APPLICATION REPLY ENDPOINTS
+// ========================================
+
+// Send reply to application (admin only)
+app.post('/api/application-replies', authMiddleware, adminMiddleware, async (req, res) => {
+  const { applicationId, applicationType, userEmail, adminReply } = req.body;
+  const adminName = req.user.username;
+
+  if (!applicationId || !applicationType || !userEmail || !adminReply) {
+    return res.status(400).json({ error: 'Application ID, type, user email, and admin reply are required' });
+  }
+
+  const validTypes = ['visa', 'marriage', 'birth_certificate', 'travel_pass'];
+  if (!validTypes.includes(applicationType)) {
+    return res.status(400).json({ error: 'Invalid application type' });
+  }
+
+  try {
+    // Save reply to database
+    await pool.query(
+      'INSERT INTO application_replies (application_id, application_type, user_email, admin_reply, admin_name) VALUES (?, ?, ?, ?, ?)',
+      [applicationId, applicationType, userEmail, adminReply, adminName]
+    );
+
+    // Get application details for email
+    let applicationDetails = null;
+    let tableName = '';
+
+    switch (applicationType) {
+      case 'visa':
+        tableName = 'visa_applications';
+        break;
+      case 'marriage':
+        tableName = 'marriage_applications';
+        break;
+      case 'birth_certificate':
+        tableName = 'birth_certificate_applications';
+        break;
+      case 'travel_pass':
+        tableName = 'travel_pass_applications';
+        break;
+    }
+
+    if (tableName) {
+      const [appRows] = await pool.query(`SELECT * FROM ${tableName} WHERE id = ?`, [applicationId]);
+      if (appRows.length > 0) {
+        applicationDetails = appRows[0];
+      }
+    }
+
+    // Send email notification to user
+    if (SENDGRID_API_KEY) {
+      const applicationTitles = {
+        visa: 'Visa Application',
+        marriage: 'Marriage Certificate Application',
+        birth_certificate: 'Birth Certificate Application',
+        travel_pass: 'Travel Pass Application'
+      };
+
+      const applicantName = applicationDetails ?
+        (applicationDetails.first_name || applicationDetails.spouse1_first_name || applicationDetails.child_first_name || '') +
+        ' ' +
+        (applicationDetails.last_name || applicationDetails.spouse1_last_name || applicationDetails.child_last_name || '')
+        : 'Applicant';
+
+      try {
+        await sgMail.send({
+          to: userEmail,
+          from: CONTACT_FROM,
+          subject: `Reply to Your ${applicationTitles[applicationType]} - Application #${applicationId}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #0b2f63 0%, #1e40af 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">📄 Application Reply</h1>
+              </div>
+
+              <div style="background: #f8fafc; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0b2f63;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Application Details</h2>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Application ID:</strong> ${applicationId}</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Type:</strong> ${applicationTitles[applicationType]}</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Applicant:</strong> ${applicantName.trim() || 'N/A'}</p>
+                  ${applicationDetails?.status ? `<p style="margin: 5px 0; color: #475569;"><strong>Current Status:</strong> ${applicationDetails.status}</p>` : ''}
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Official Reply</h2>
+                  <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #16a34a;">
+                    <p style="margin: 0; color: #166534; line-height: 1.6; white-space: pre-wrap;">${adminReply}</p>
+                  </div>
+                  <p style="margin: 15px 0 0 0; font-size: 0.875rem; color: #6b7280;">
+                    <strong>Replied by:</strong> ${adminName} (Embassy Staff)
+                  </p>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${process.env.FRONTEND_URL || 'https://kessetest.com'}/dashboard"
+                     style="display: inline-block; background: #0b2f63; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    View Your Applications
+                  </a>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px;">
+                  <p style="margin: 5px 0;">Central African Republic Embassy</p>
+                  <p style="margin: 5px 0;">2704 Ontario Rd NW, Washington, DC 20009</p>
+                  <p style="margin: 5px 0;">Phone: (202) 483-7800 | Email: ${CONTACT_TO}</p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send application reply email:', emailErr);
+        // Don't fail the request if email fails
+      }
+    }
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Application reply error:', err);
+    res.status(500).json({ error: 'Failed to send reply' });
+  }
+});
+
+// Get application replies (admin only)
+app.get('/api/application-replies', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      'SELECT * FROM application_replies ORDER BY replied_at DESC'
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error('Get application replies error:', err);
+    res.status(500).json({ error: 'Failed to fetch replies' });
+  }
+});
+
 app.listen(PORT, async () => {
   console.log(`Server listening on port ${PORT}`);
   try {

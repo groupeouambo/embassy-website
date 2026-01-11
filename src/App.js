@@ -37,6 +37,7 @@ import ChatWidget from './component/chat/ChatWidget';
 import { initialVisaFormData } from './component/visaapplication/visaFormState';
 import { api } from './api';
 import AdminVisitors from './component/services/AdminVisitors';
+import AdminReplies from './component/services/AdminReplies';
 
 const infoPages = [
   { path: '/embassy/mission', title: 'Embassy Mission', description: 'Learn about the objectives and responsibilities of the Central African Republic Embassy.' },
@@ -228,6 +229,14 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminVisitors />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/replies"
+              element={
+                <AdminRoute>
+                  <AdminReplies />
                 </AdminRoute>
               }
             />

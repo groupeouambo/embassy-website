@@ -223,6 +223,16 @@ export const api = {
   getRecentVisitors: (limit = 50, offset = 0) =>
     apiFetch(`/api/admin/visitors/recent?limit=${limit}&offset=${offset}`),
   getOnlineVisitors: () => apiFetch('/api/admin/visitors/online'),
+
+  // Contact replies
+  sendContactReply: (payload) =>
+    apiFetch('/api/contact-replies', { method: 'POST', body: JSON.stringify(payload) }),
+  getContactReplies: () => apiFetch('/api/contact-replies'),
+
+  // Application replies
+  sendApplicationReply: (payload) =>
+    apiFetch('/api/application-replies', { method: 'POST', body: JSON.stringify(payload) }),
+  getApplicationReplies: () => apiFetch('/api/application-replies'),
 };
 
 export { API_BASE };
