@@ -49,8 +49,19 @@ const limiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
 });
+
+// Skip rate limiting for admin routes (authenticated users)
+const skipAdminLimiter = (req, res, next) => {
+  // Skip rate limiting for authenticated admin users
+  if (req.user && req.user.isAdmin) {
+    return next();
+  }
+  // Apply rate limiting for non-admin users
+  limiter(req, res, next);
+};
+
 if (process.env.NODE_ENV === 'production') {
-  app.use('/api/', limiter);
+  app.use('/api/', skipAdminLimiter);
 }
 
 // Stricter rate limit for auth endpoints (more permissive in development)
@@ -1652,6 +1663,138 @@ app.post('/api/chat/admin-reply', authMiddleware, adminMiddleware, async (req, r
       [conversationId]
     );
 
+    // Get conversation details for email
+    const [conversations] = await pool.query(
+      'SELECT * FROM chat_conversations WHERE id = ?',
+      [conversationId]
+    );
+
+    if (conversations.length > 0 && SENDGRID_API_KEY) {
+      const conversation = conversations[0];
+
+      // Get all messages for this conversation to build transcript
+      const [allMessages] = await pool.query(
+        'SELECT * FROM chat_messages WHERE conversation_id = ? ORDER BY created_at ASC',
+        [conversationId]
+      );
+
+      // Build transcript
+      let transcript = '';
+      allMessages.forEach(msg => {
+        const time = new Date(msg.created_at).toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        transcript += `[${time}] ${msg.sender_name} (${msg.sender_type}):\n${msg.message}\n\n`;
+      });
+
+      // Send email to user with admin reply
+      try {
+        await sgMail.send({
+          to: conversation.user_email,
+          from: CONTACT_FROM,
+          subject: `Reply from CAR Embassy Support - Conversation #${conversationId}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #0b2f63 0%, #1e40af 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">💬 Support Reply</h1>
+              </div>
+
+              <div style="background: #f8fafc; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #0b2f63;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Latest Reply from Support</h2>
+                  <p style="margin: 5px 0; color: #475569;"><strong>From:</strong> ${adminName} (Embassy Support)</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Conversation ID:</strong> #${conversationId}</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Admin Reply</h2>
+                  <div style="background: #eff6ff; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+                    <p style="margin: 0; color: #1e293b; line-height: 1.6;">${message}</p>
+                  </div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Full Conversation Transcript</h2>
+                  <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; color: #475569; white-space: pre-wrap; max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb;">${transcript}</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${process.env.FRONTEND_URL || 'https://kessetest.com'}"
+                     style="display: inline-block; background: #0b2f63; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    Continue Conversation
+                  </a>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px;">
+                  <p style="margin: 5px 0;">Central African Republic Embassy</p>
+                  <p style="margin: 5px 0;">Chat Support System</p>
+                  <p style="margin: 5px 0;">This email serves as your conversation transcript and record.</p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send reply email to user:', emailErr);
+        // Don't fail the request if email fails
+      }
+
+      // Send email to admin as record
+      try {
+        await sgMail.send({
+          to: CONTACT_TO,
+          from: CONTACT_FROM,
+          subject: `Admin Reply Sent - Conversation #${conversationId}`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="margin: 0; font-size: 24px;">📤 Admin Reply Sent</h1>
+              </div>
+
+              <div style="background: #f8fafc; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #059669;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Reply Details</h2>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Admin:</strong> ${adminName}</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>User:</strong> ${conversation.user_name} (${conversation.user_email})</p>
+                  <p style="margin: 5px 0; color: #475569;"><strong>Conversation ID:</strong> #${conversationId}</p>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Reply Content</h2>
+                  <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #16a34a;">
+                    <p style="margin: 0; color: #166534; line-height: 1.6;">${message}</p>
+                  </div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                  <h2 style="margin: 0 0 15px 0; color: #1e293b; font-size: 18px;">Conversation Summary</h2>
+                  <div style="background: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 13px; color: #475569; white-space: pre-wrap; max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb;">${transcript}</div>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                  <a href="${process.env.FRONTEND_URL || 'https://kessetest.com'}/admin/messages"
+                     style="display: inline-block; background: #0b2f63; color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                    View in Admin Panel
+                  </a>
+                </div>
+
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #94a3b8; font-size: 12px;">
+                  <p style="margin: 5px 0;">Central African Republic Embassy</p>
+                  <p style="margin: 5px 0;">Admin Reply Notification</p>
+                </div>
+              </div>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.error('Failed to send admin notification email:', emailErr);
+        // Don't fail the request if email fails
+      }
+    }
+
     res.json({ success: true });
   } catch (err) {
     console.error('Admin reply error:', err);
@@ -2436,7 +2579,7 @@ app.post('/api/visitor/heartbeat', visitorLimiter, async (req, res) => {
 // Considers visitors online if they've been active in the last 5 minutes
 app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (req, res) => {
   try {
-    // Get online visitors with user info if available
+    // Get online visitors - simplified query without user join to avoid database issues
     const [onlineVisitors] = await pool.query(
       `SELECT
         v.session_id,
@@ -2450,25 +2593,12 @@ app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (re
         v.page_url,
         v.last_active,
         v.visited_at,
-        v.user_id,
-        CASE
-          WHEN v.user_id IS NOT NULL THEN l.username
-          ELSE NULL
-        END as username,
-        CASE
-          WHEN v.user_id IS NOT NULL THEN CONCAT(l.firstname, ' ', l.lastname)
-          ELSE NULL
-        END as full_name
+        v.user_id
        FROM visitor_logs v
-       LEFT JOIN (
-         SELECT DISTINCT session_id, MAX(visited_at) as latest_visit
-         FROM visitor_logs
-         GROUP BY session_id
-       ) latest ON v.session_id = latest.session_id AND v.visited_at = latest.latest_visit
-       LEFT JOIN login l ON v.user_id = l.id
        WHERE v.last_active >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
        GROUP BY v.session_id
-       ORDER BY v.last_active DESC`
+       ORDER BY v.last_active DESC
+       LIMIT 50`
     );
 
     // Get count of online visitors
