@@ -5,11 +5,11 @@ import './chatWidget.css';
 
 export default function ChatWidget() {
   const { isAdmin } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
 
   if (isAdmin()) {
     return null;
   }
-  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
