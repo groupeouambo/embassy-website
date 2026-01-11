@@ -2286,7 +2286,7 @@ app.post('/api/track-visitor', visitorLimiter, async (req, res) => {
   try {
     const ip = getClientIp(req);
     const userAgent = req.headers['user-agent'] || '';
-    const { page_url, referrer, session_id } = req.body;
+    const { page_url, referrer, session_id, user_id } = req.body;
 
     const { deviceType, browser, os } = parseUserAgent(userAgent);
 
@@ -2313,9 +2313,9 @@ app.post('/api/track-visitor', visitorLimiter, async (req, res) => {
 
     await pool.query(
       `INSERT INTO visitor_logs
-       (ip_address, country, city, region, user_agent, device_type, browser, os, page_url, referrer, session_id)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [ip, country, city, region, userAgent, deviceType, browser, os, page_url, referrer, session_id]
+       (ip_address, country, city, region, user_agent, device_type, browser, os, page_url, referrer, session_id, user_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [ip, country, city, region, userAgent, deviceType, browser, os, page_url, referrer, session_id, user_id || null]
     );
 
     res.json({ success: true });
@@ -2409,7 +2409,7 @@ app.get('/api/admin/visitors/recent', authMiddleware, adminMiddleware, async (re
 // Heartbeat endpoint - updates last_active timestamp
 app.post('/api/visitor/heartbeat', visitorLimiter, async (req, res) => {
   try {
-    const { session_id, page_url } = req.body;
+    const { session_id, page_url, user_id } = req.body;
 
     if (!session_id) {
       return res.status(400).json({ error: 'Session ID required' });
@@ -2418,11 +2418,11 @@ app.post('/api/visitor/heartbeat', visitorLimiter, async (req, res) => {
     // Update the most recent visitor log for this session
     await pool.query(
       `UPDATE visitor_logs
-       SET last_active = CURRENT_TIMESTAMP, page_url = ?
+       SET last_active = CURRENT_TIMESTAMP, page_url = ?, user_id = ?
        WHERE session_id = ?
        ORDER BY visited_at DESC
        LIMIT 1`,
-      [page_url || null, session_id]
+      [page_url || null, user_id || null, session_id]
     );
 
     res.json({ success: true });
@@ -2436,6 +2436,7 @@ app.post('/api/visitor/heartbeat', visitorLimiter, async (req, res) => {
 // Considers visitors online if they've been active in the last 5 minutes
 app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    // Get online visitors with user info if available
     const [onlineVisitors] = await pool.query(
       `SELECT
         v.session_id,
@@ -2449,15 +2450,22 @@ app.get('/api/admin/visitors/online', authMiddleware, adminMiddleware, async (re
         v.page_url,
         v.last_active,
         v.visited_at,
-        u.email as username,
-        u.full_name
+        v.user_id,
+        CASE
+          WHEN v.user_id IS NOT NULL THEN l.username
+          ELSE NULL
+        END as username,
+        CASE
+          WHEN v.user_id IS NOT NULL THEN CONCAT(l.firstname, ' ', l.lastname)
+          ELSE NULL
+        END as full_name
        FROM visitor_logs v
        LEFT JOIN (
          SELECT DISTINCT session_id, MAX(visited_at) as latest_visit
          FROM visitor_logs
          GROUP BY session_id
        ) latest ON v.session_id = latest.session_id AND v.visited_at = latest.latest_visit
-       LEFT JOIN users u ON v.user_id = u.id
+       LEFT JOIN login l ON v.user_id = l.id
        WHERE v.last_active >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)
        GROUP BY v.session_id
        ORDER BY v.last_active DESC`
