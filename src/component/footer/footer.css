@@ -4,7 +4,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
-  padding: 28px 24px 32px;
+  padding: 24px 20px 28px;
   background: linear-gradient(135deg, var(--primary-dark) 0%, #061b3a 100%);
   color: #e5e7eb;
   box-shadow: 0 -10px 24px rgba(0, 0, 0, 0.18);

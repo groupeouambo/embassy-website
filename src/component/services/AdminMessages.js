@@ -418,7 +418,7 @@ export default function AdminMessages() {
                           onChange={(e) => setReplyText(e.target.value)}
                           style={{
                             flex: 1,
-                            padding: '12px',
+                            padding: '16px',
                             border: '1px solid #e5e7eb',
                             borderRadius: '8px',
                             fontSize: '0.9rem',
@@ -429,7 +429,7 @@ export default function AdminMessages() {
                           type="submit"
                           disabled={sendingReply || !replyText.trim()}
                           style={{
-                            padding: '12px',
+                            padding: '16px',
                             background: sendingReply || !replyText.trim() ? '#d1d5db' : 'var(--primary)',
                             color: '#fff',
                             border: 'none',
