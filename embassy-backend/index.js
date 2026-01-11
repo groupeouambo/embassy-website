@@ -60,9 +60,25 @@ const skipAdminLimiter = (req, res, next) => {
   limiter(req, res, next);
 };
 
-if (process.env.NODE_ENV === 'production') {
-  app.use('/api/', skipAdminLimiter);
-}
+// Apply rate limiting to all API routes, but skip for admins
+app.use('/api/', (req, res, next) => {
+  // Check if this is an admin request by looking at the authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    try {
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+      if (decoded && decoded.username === 'admin@usrcaembassy.org') {
+        // Skip rate limiting for admin
+        return next();
+      }
+    } catch (err) {
+      // Invalid token, continue with rate limiting
+    }
+  }
+  // Apply rate limiting for non-admin users
+  limiter(req, res, next);
+});
 
 // Stricter rate limit for auth endpoints (more permissive in development)
 const authLimiter = rateLimit({
@@ -87,7 +103,7 @@ const visitorLimiter = rateLimit({
 
 const PORT = process.env.PORT || 4000;
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const CONTACT_TO = process.env.CONTACT_TO || 'ouambor@yahoo.fr';
+const CONTACT_TO = process.env.CONTACT_TO || 'ouambo5r@yahoo.fr';
 const CONTACT_FROM = process.env.CONTACT_FROM || 'no-reply@usrcaembassy.org';
 
 if (SENDGRID_API_KEY) {
