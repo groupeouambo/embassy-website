@@ -1,8 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../../api';
+import { useAuth } from '../../context/AuthContext';
 import './chatWidget.css';
 
 export default function ChatWidget() {
+  const { isAdmin } = useAuth();
+
+  if (isAdmin()) {
+    return null;
+  }
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
