@@ -74,6 +74,8 @@ const servicePages = [
 
 // Visitor tracking component
 function VisitorTracker() {
+  const { user } = useAuth();
+
   useEffect(() => {
     const trackVisitor = async () => {
       try {
@@ -97,6 +99,7 @@ function VisitorTracker() {
           page_url: window.location.href,
           referrer: document.referrer || 'Direct',
           session_id: sessionId,
+          user_id: user?.id || null, // Include user ID if logged in
         });
 
         // Mark as tracked
@@ -118,7 +121,8 @@ function VisitorTracker() {
         try {
           await api.sendHeartbeat({
             session_id: sessionId,
-            page_url: window.location.href
+            page_url: window.location.href,
+            user_id: user?.id || null, // Include user ID if logged in
           });
         } catch (error) {
           // Silently fail
@@ -130,7 +134,7 @@ function VisitorTracker() {
     }, 120000); // Every 2 minutes instead of 30 seconds
 
     return () => clearInterval(heartbeatInterval);
-  }, []);
+  }, [user?.id]); // Re-run when user login state changes
 
   return null;
 }
