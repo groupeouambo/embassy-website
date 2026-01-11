@@ -66,13 +66,13 @@ export default function AdminChat() {
   useEffect(() => {
     loadConversations();
 
-    // Auto-refresh conversations every 5 seconds
+    // Auto-refresh conversations every 30 seconds (reduced frequency to avoid rate limits)
     const interval = setInterval(() => {
       loadConversations();
       if (selectedConversation) {
         loadMessages(selectedConversation.id, false); // Don't auto-scroll on refresh
       }
-    }, 5000);
+    }, 30000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -384,20 +384,21 @@ export default function AdminChat() {
                   </div>
 
                   {/* Message Input */}
-                  {selectedConversation.status !== 'closed' && (
+                  {selectedConversation && selectedConversation.status !== 'closed' && (
                     <form onSubmit={handleSendMessage} style={{
                       padding: '16px',
                       borderTop: '1px solid #e5e7eb',
                       background: '#ffffff',
                       display: 'flex',
                       gap: '12px',
+                      borderRadius: '0 0 12px 12px',
                     }}>
                       <input
                         ref={inputRef}
                         type="text"
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
-                        placeholder="Type your message..."
+                        placeholder="Type your reply message..."
                         style={{
                           flex: 1,
                           padding: '12px 16px',
@@ -405,7 +406,10 @@ export default function AdminChat() {
                           borderRadius: '8px',
                           fontSize: '0.9rem',
                           outline: 'none',
+                          transition: 'border-color 0.2s ease',
                         }}
+                        onFocus={(e) => e.target.style.borderColor = '#2563eb'}
+                        onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                       />
                       <button
                         type="submit"
@@ -422,9 +426,22 @@ export default function AdminChat() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
+                          transition: 'all 0.2s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!sending && messageInput.trim()) {
+                            e.target.style.background = '#1d4ed8';
+                            e.target.style.transform = 'translateY(-1px)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!sending && messageInput.trim()) {
+                            e.target.style.background = '#2563eb';
+                            e.target.style.transform = 'translateY(0)';
+                          }
                         }}
                       >
-                        <FaPaperPlane /> {sending ? 'Sending...' : 'Send'}
+                        <FaPaperPlane /> {sending ? 'Sending...' : 'Reply'}
                       </button>
                     </form>
                   )}
