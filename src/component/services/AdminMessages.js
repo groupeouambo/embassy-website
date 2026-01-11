@@ -18,7 +18,14 @@ export default function AdminMessages() {
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const messagesContainer = messagesEndRef.current?.parentElement;
+    if (messagesContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px tolerance
+      if (isAtBottom) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   useEffect(() => {
@@ -279,8 +286,8 @@ export default function AdminMessages() {
                       >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
                           <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 600, marginBottom: '4px' }}>{conv.user_name}</div>
-                            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px' }}>
+                            <div style={{ fontWeight: 600, marginBottom: '4px', overflowWrap: 'break-word' }}>{conv.user_name}</div>
+                            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '4px', overflowWrap: 'break-word' }}>
                               {conv.user_email}
                             </div>
                             <div style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
@@ -320,7 +327,7 @@ export default function AdminMessages() {
                   <>
                     {/* Header */}
                     <div style={{
-                      padding: '16px',
+                      padding: '12px',
                       borderBottom: '1px solid #e5e7eb',
                       display: 'flex',
                       justifyContent: 'space-between',
@@ -382,7 +389,7 @@ export default function AdminMessages() {
                               {msg.sender_type === 'admin' ? `Admin: ${msg.sender_name}` :
                                msg.sender_type === 'bot' ? 'Bot' : msg.sender_name || 'User'}
                             </div>
-                            <div style={{ whiteSpace: 'pre-line' }}>{msg.message}</div>
+                            <div style={{ whiteSpace: 'pre-line', wordWrap: 'break-word', overflowWrap: 'break-word' }}>{msg.message}</div>
                             <div style={{
                               fontSize: '0.7rem',
                               marginTop: '6px',
@@ -399,7 +406,7 @@ export default function AdminMessages() {
                     {/* Reply Input */}
                     {selectedConversation.status === 'active' && (
                       <form onSubmit={handleSendReply} style={{
-                        padding: '16px',
+                        padding: '12px',
                         borderTop: '1px solid #e5e7eb',
                         display: 'flex',
                         gap: '12px'
@@ -422,7 +429,7 @@ export default function AdminMessages() {
                           type="submit"
                           disabled={sendingReply || !replyText.trim()}
                           style={{
-                            padding: '12px 24px',
+                            padding: '12px',
                             background: sendingReply || !replyText.trim() ? '#d1d5db' : 'var(--primary)',
                             color: '#fff',
                             border: 'none',
