@@ -114,7 +114,7 @@ function VisitorTracker() {
 
     trackVisitor();
 
-    // Send heartbeat every 2 minutes to show user is still active (reduced frequency to avoid rate limits)
+    // Send heartbeat every 30 seconds to show user is still active
     const heartbeatInterval = setInterval(async () => {
       const sessionId = sessionStorage.getItem('visitor_session_id');
       if (sessionId) {
@@ -131,7 +131,7 @@ function VisitorTracker() {
           }
         }
       }
-    }, 120000); // Every 2 minutes instead of 30 seconds
+    }, 30000); // Every 30 seconds
 
     return () => clearInterval(heartbeatInterval);
   }, [user?.id]); // Re-run when user login state changes
