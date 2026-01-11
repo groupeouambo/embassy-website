@@ -389,7 +389,8 @@ export default function AdminChat() {
                       padding: '20px',
                       borderTop: '2px solid #e5e7eb',
                       background: '#f9fafb',
-                      display: 'flex',
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
                       alignItems: 'center',
                       gap: '12px',
                     }}>
@@ -400,7 +401,7 @@ export default function AdminChat() {
                         onChange={(e) => setMessageInput(e.target.value)}
                         placeholder="Type your message..."
                         style={{
-                          flex: 1,
+                          width: '100%',
                           padding: '14px 18px',
                           border: '2px solid #e5e7eb',
                           borderRadius: '12px',
@@ -422,8 +423,8 @@ export default function AdminChat() {
                         type="submit"
                         disabled={sending || !messageInput.trim()}
                         style={{
-                          minWidth: '120px',
-                          padding: '14px 28px',
+                          whiteSpace: 'nowrap',
+                          padding: '14px 24px',
                           background: sending || !messageInput.trim() ? '#cbd5e1' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                           color: '#fff',
                           border: 'none',
