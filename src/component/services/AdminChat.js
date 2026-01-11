@@ -386,62 +386,74 @@ export default function AdminChat() {
                   {/* Message Input */}
                   {selectedConversation && selectedConversation.status !== 'closed' && (
                     <form onSubmit={handleSendMessage} style={{
-                      padding: '16px',
-                      borderTop: '1px solid #e5e7eb',
-                      background: '#ffffff',
+                      padding: '20px',
+                      borderTop: '2px solid #e5e7eb',
+                      background: '#f9fafb',
                       display: 'flex',
+                      alignItems: 'center',
                       gap: '12px',
-                      borderRadius: '0 0 12px 12px',
                     }}>
                       <input
                         ref={inputRef}
                         type="text"
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
-                        placeholder="Type your reply message..."
+                        placeholder="Type your message..."
                         style={{
                           flex: 1,
-                          padding: '12px 16px',
-                          border: '1px solid #e5e7eb',
-                          borderRadius: '8px',
-                          fontSize: '0.9rem',
+                          padding: '14px 18px',
+                          border: '2px solid #e5e7eb',
+                          borderRadius: '12px',
+                          fontSize: '0.95rem',
                           outline: 'none',
-                          transition: 'border-color 0.2s ease',
+                          transition: 'all 0.2s ease',
+                          background: '#ffffff',
                         }}
-                        onFocus={(e) => e.target.style.borderColor = '#2563eb'}
-                        onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#2563eb';
+                          e.target.style.boxShadow = '0 0 0 3px rgba(37, 99, 235, 0.1)';
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#e5e7eb';
+                          e.target.style.boxShadow = 'none';
+                        }}
                       />
                       <button
                         type="submit"
                         disabled={sending || !messageInput.trim()}
                         style={{
-                          padding: '12px 24px',
-                          background: sending || !messageInput.trim() ? '#d1d5db' : '#2563eb',
+                          minWidth: '120px',
+                          padding: '14px 28px',
+                          background: sending || !messageInput.trim() ? '#cbd5e1' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                           color: '#fff',
                           border: 'none',
-                          borderRadius: '8px',
+                          borderRadius: '12px',
                           cursor: sending || !messageInput.trim() ? 'not-allowed' : 'pointer',
-                          fontSize: '0.9rem',
-                          fontWeight: 600,
+                          fontSize: '0.95rem',
+                          fontWeight: 700,
                           display: 'flex',
                           alignItems: 'center',
+                          justifyContent: 'center',
                           gap: '8px',
                           transition: 'all 0.2s ease',
+                          boxShadow: sending || !messageInput.trim() ? 'none' : '0 4px 12px rgba(37, 99, 235, 0.25)',
+                          letterSpacing: '0.3px',
                         }}
                         onMouseEnter={(e) => {
                           if (!sending && messageInput.trim()) {
-                            e.target.style.background = '#1d4ed8';
-                            e.target.style.transform = 'translateY(-1px)';
+                            e.target.style.transform = 'translateY(-2px)';
+                            e.target.style.boxShadow = '0 8px 20px rgba(37, 99, 235, 0.35)';
                           }
                         }}
                         onMouseLeave={(e) => {
                           if (!sending && messageInput.trim()) {
-                            e.target.style.background = '#2563eb';
                             e.target.style.transform = 'translateY(0)';
+                            e.target.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.25)';
                           }
                         }}
                       >
-                        <FaPaperPlane /> {sending ? 'Sending...' : 'Reply'}
+                        <FaPaperPlane style={{ fontSize: '0.9rem' }} />
+                        {sending ? 'Sending...' : 'Send Reply'}
                       </button>
                     </form>
                   )}
