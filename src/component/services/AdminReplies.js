@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaGlobe, FaChartLine, FaUsers, FaCog, FaFileAlt, FaComments, FaReply, FaPaperPlane } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
@@ -20,7 +20,7 @@ export default function AdminReplies() {
   const [adminReply, setAdminReply] = useState('');
   const [sendingReply, setSendingReply] = useState(false);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     // Scroll to reply form when it opens
     if (showReplyForm) {
       const formElement = document.getElementById('reply-form');
@@ -28,11 +28,11 @@ export default function AdminReplies() {
         formElement.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  };
+  }, [showReplyForm]);
 
   useEffect(() => {
     scrollToBottom();
-  }, [showReplyForm]);
+  }, [showReplyForm, scrollToBottom]);
 
   const fetchData = async () => {
     setLoading(true);
