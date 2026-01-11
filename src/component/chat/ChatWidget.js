@@ -29,10 +29,6 @@ export default function ChatWidget() {
   const [trackingError, setTrackingError] = useState('');
   const messagesEndRef = useRef(null);
 
-  if (isAdmin()) {
-    return null;
-  }
-
   // Generate or retrieve session ID
   useEffect(() => {
     let storedSessionId = localStorage.getItem('chatSessionId');
@@ -353,6 +349,11 @@ export default function ChatWidget() {
       }
     }, 800);
   };
+
+  // Don't show chat widget for admins
+  if (isAdmin()) {
+    return null;
+  }
 
   return (
     <>
