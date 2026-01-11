@@ -6,10 +6,6 @@ import './chatWidget.css';
 export default function ChatWidget() {
   const { isAdmin } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-
-  if (isAdmin()) {
-    return null;
-  }
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -32,6 +28,10 @@ export default function ChatWidget() {
   const [trackingResult, setTrackingResult] = useState(null);
   const [trackingError, setTrackingError] = useState('');
   const messagesEndRef = useRef(null);
+
+  if (isAdmin()) {
+    return null;
+  }
 
   // Generate or retrieve session ID
   useEffect(() => {
