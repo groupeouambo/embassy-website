@@ -12,7 +12,7 @@ import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { pool, initDB } from './db.js';
-import { generateToken, authMiddleware, adminMiddleware } from './auth.js';
+import { generateToken, verifyToken, authMiddleware, adminMiddleware } from './auth.js';
 import {
   signupValidation,
   loginValidation,
@@ -41,10 +41,10 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
 
-// Rate limiting
+// Rate limiting - Very lenient for production to avoid blocking legitimate admin usage
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 300, // Increased to 300 requests per 15 minutes
+  max: 1000, // Increased to 1000 requests per 15 minutes
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -69,13 +69,15 @@ app.use('/api/', (req, res, next) => {
       const token = authHeader.substring(7);
       const decoded = verifyToken(token);
       if (decoded && decoded.username === 'admin@usrcaembassy.org') {
-        // Skip rate limiting for admin
+        // Skip rate limiting for admin - return early
         return next();
       }
     } catch (err) {
       // Invalid token, continue with rate limiting
+      console.log('Token verification failed, applying rate limiting');
     }
   }
+
   // Apply rate limiting for non-admin users
   limiter(req, res, next);
 });
@@ -83,7 +85,7 @@ app.use('/api/', (req, res, next) => {
 // Stricter rate limit for auth endpoints (more permissive in development)
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === 'production' ? 100 : 500, // 500 attempts per 15 minutes in development
+  max: process.env.NODE_ENV === 'production' ? 200 : 500, // 200 attempts per 15 minutes in production
   message: 'Too many login attempts, please try again later.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -94,7 +96,7 @@ app.use('/api/signup', authLimiter);
 // Lenient rate limit for visitor tracking (non-critical)
 const visitorLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 60, // Increased to 60 tracking requests per minute per IP
+  max: 100, // Increased to 100 tracking requests per minute per IP
   message: 'Too many tracking requests.',
   standardHeaders: true,
   legacyHeaders: false,
