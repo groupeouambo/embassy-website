@@ -225,18 +225,26 @@
   box-shadow: var(--shadow);
 }
 
+.tourism-section h2 {
+  margin-bottom: 20px;
+  color: var(--primary-dark);
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
 .tourism-videos {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
-  justify-content: center;
   margin-top: 20px;
-  flex-wrap: wrap;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .video-item, .video-placeholder {
   width: 100%;
-  max-width: 420px;
-  height: 330px;
+  aspect-ratio: 16/9;
   background-color: #ccc;
   border-radius: 12px;
   display: flex;
@@ -245,6 +253,12 @@
   font-size: 1.2em;
   color: #333;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.video-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
 }
 
 .video-item {

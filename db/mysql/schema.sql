@@ -4,13 +4,15 @@
 CREATE DATABASE IF NOT EXISTS zirhmute_embassy;
 USE zirhmute_embassy;
 
--- Users table
-CREATE TABLE IF NOT EXISTS users (
+-- Login table (renamed from users to match backend code)
+CREATE TABLE IF NOT EXISTS login (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  full_name VARCHAR(120) NOT NULL,
-  email VARCHAR(160) NOT NULL UNIQUE,
-  password_hash CHAR(60) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  username VARCHAR(160) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  firstname VARCHAR(100) NOT NULL,
+  lastname VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Optional session tokens table (for API tokens/JWT refresh if desired)
@@ -20,14 +22,32 @@ CREATE TABLE IF NOT EXISTS sessions (
   token CHAR(64) NOT NULL UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP NULL,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Password reset tokens table
+CREATE TABLE IF NOT EXISTS password_resets (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  token VARCHAR(255) NOT NULL UNIQUE,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE,
+  INDEX idx_token (token),
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Visa application stub table
 CREATE TABLE IF NOT EXISTS visa_applications (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  user_id INT UNSIGNED NOT NULL,
+  user_name VARCHAR(255) NOT NULL,
+  user_id INT UNSIGNED,
   visa_type VARCHAR(50) NOT NULL,
+  status ENUM('pending', 'under_review', 'approved', 'denied', 'shipped') DEFAULT 'pending',
+  tracking_number VARCHAR(100),
+  shipping_carrier VARCHAR(100),
+  status_history TEXT,
   first_name VARCHAR(80),
   last_name VARCHAR(80),
   gender VARCHAR(20),
@@ -47,7 +67,10 @@ CREATE TABLE IF NOT EXISTS visa_applications (
   employer_address VARCHAR(200),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE,
+  INDEX idx_user_name (user_name),
+  INDEX idx_status (status),
+  INDEX idx_tracking (tracking_number)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Birth Certificate Applications table
@@ -108,7 +131,7 @@ CREATE TABLE IF NOT EXISTS birth_certificate_applications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE,
   INDEX idx_user_name (user_name),
   INDEX idx_status (status),
   INDEX idx_tracking (tracking_number),
@@ -166,7 +189,7 @@ CREATE TABLE IF NOT EXISTS marriage_applications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE,
   INDEX idx_user_name (user_name),
   INDEX idx_status (status),
   INDEX idx_tracking (tracking_number),
@@ -247,7 +270,7 @@ CREATE TABLE IF NOT EXISTS travel_pass_applications (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES login(id) ON DELETE CASCADE,
   INDEX idx_user_name (user_name),
   INDEX idx_status (status),
   INDEX idx_tracking (tracking_number),
@@ -310,6 +333,6 @@ CREATE TABLE IF NOT EXISTS visitor_logs (
 
 -- Insert an admin test user (replace the hash with a real bcrypt hash)
 -- Password hash below is bcrypt for the password "ChangeMe123!"
-INSERT INTO users (full_name, email, password_hash)
-VALUES ('Admin User', 'admin@example.com', '$2b$10$kz2yS5mIRZk5r0uohFQxB.gqXzh8bkUg.vgJmioWmTOUHw67MquB6')
-ON DUPLICATE KEY UPDATE email=email;
+INSERT INTO login (username, password, firstname, lastname)
+VALUES ('admin@usrcaembassy.org', '$2b$10$kz2yS5mIRZk5r0uohFQxB.gqXzh8bkUg.vgJmioWmTOUHw67MquB6', 'Admin', 'User')
+ON DUPLICATE KEY UPDATE username=username;

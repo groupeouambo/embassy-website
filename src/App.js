@@ -8,11 +8,11 @@ import Navbar from './component/navbar/Navbar';
 import Contact from './component/contact/Contact';
 import Home from './component/home/Home';
 import Footer from './component/footer/Footer';
-import Ambassador from './component/ambassador/Ambassasdor';
+import Ambassador from './component/ambassador/Ambassador';
 import Registration from './component/services/Registration';
 import Visa from './component/services/Visa';
-import Visaaplication from './component/visaapplication/Visaaplication';
-import Visaaplications from './component/visaapplication/Visaaplications';
+import VisaApplication from './component/visaapplication/VisaApplication';
+import VisaApplications from './component/visaapplication/VisaApplications';
 import Signup from './component/services/Signup';
 import Signin from './component/services/Signin';
 import ForgotPassword from './component/services/ForgotPassword';
@@ -90,7 +90,7 @@ function VisitorTracker() {
         let sessionId = sessionStorage.getItem('visitor_session_id');
         if (!sessionId) {
           sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          sessionStorage.getItem('visitor_session_id', sessionId);
+          sessionStorage.setItem('visitor_session_id', sessionId);
         }
 
         await api.trackVisitor({
@@ -111,7 +111,7 @@ function VisitorTracker() {
 
     trackVisitor();
 
-    // Send heartbeat every 30 seconds to show user is still active
+    // Send heartbeat every 2 minutes to show user is still active (reduced frequency to avoid rate limits)
     const heartbeatInterval = setInterval(async () => {
       const sessionId = sessionStorage.getItem('visitor_session_id');
       if (sessionId) {
@@ -127,7 +127,7 @@ function VisitorTracker() {
           }
         }
       }
-    }, 30000); // Every 30 seconds
+    }, 120000); // Every 2 minutes instead of 30 seconds
 
     return () => clearInterval(heartbeatInterval);
   }, []);
@@ -155,8 +155,8 @@ function App() {
          
           <Routes>
             <Route path="/contact" element={<Contact />} />
-            <Route path="/visaapplication" element={<Visaaplication formData={visaFormData} setFormData={setVisaFormData} />} />
-            <Route path="/visaapplications" element={<Visaaplications formData={visaFormData} setFormData={setVisaFormData} />} />
+            <Route path="/visaapplication" element={<VisaApplication formData={visaFormData} setFormData={setVisaFormData} />} />
+            <Route path="/visaapplications" element={<VisaApplications formData={visaFormData} setFormData={setVisaFormData} />} />
             <Route path="/visa" element={<Visa />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />

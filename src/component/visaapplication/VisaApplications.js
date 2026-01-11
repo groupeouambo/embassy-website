@@ -1,32 +1,75 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './visaaplication.css';
+import './visaApplication.css';
 import { initialVisaFormData } from './visaFormState';
-import Logo from '../navbar/logo.png';
+import { api } from '../../api';
+import { useAuth } from '../../context/AuthContext';
+import ApplicationSuccess from '../services/ApplicationSuccess';
 
-export default function Visaaplication({ formData, setFormData }) {
+export default function Visaaplications({ formData, setFormData }) {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+  const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [applicationId, setApplicationId] = useState(null);
+  const [trackingNumber, setTrackingNumber] = useState(null);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    navigate('/visaapplications');
+    setError('');
+    if (!isAuthenticated() || !user?.username) {
+      setError('Please sign in before submitting your application.');
+      navigate('/signin');
+      return;
+    }
+    setSubmitting(true);
+
+    try {
+      // Generate tracking number
+      const tracking = `VISA-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+      // Submit application
+      const resp = await api.submitVisaApplication({
+        userName: user.username,
+        ...formData,
+        tracking_number: tracking
+      });
+
+      // Store application details for success screen
+      setApplicationId(resp.id);
+      setTrackingNumber(tracking);
+      setSuccess(true);
+
+      // Clear form data
+      sessionStorage.removeItem('visaFormData');
+      setFormData({ ...initialVisaFormData });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  // Show success screen if submission was successful
+  if (success && trackingNumber) {
+    return (
+      <ApplicationSuccess
+        trackingNumber={trackingNumber}
+        applicationType="visa"
+        applicationId={applicationId}
+        onClose={() => navigate('/dashboard')}
+      />
+    );
+  }
 
   return (
     <div className="visa-container">
-      <div className="visa-logo-row">
-        <img src={Logo} alt="Embassy Logo" className="visa-logo" />
-      </div>
-      <h1>
-        DEMANDE DE VISA D'ENTREE EN REPUBLIC CENTRAFRICAINE
-        <br />
-        APPLICATION FOR ENTRY VISA INTO THE CENTRAL AFRICAN REPUBLIC
-      </h1>
       <form onSubmit={handleSubmit} className="visa-form">
         {/* Type of Visa */}
         <label htmlFor="visaType">TYPE DE VISA SOLLICITE / TYPE OF VISA REQUESTED</label>
@@ -44,7 +87,7 @@ export default function Visaaplication({ formData, setFormData }) {
         </select>
 
         {/* Personal Information */}
-        <h3>1. VOTRE IDENTITE / Personal Information</h3>
+        <h3>2. Document de Voyage / Travel Document </h3>
         <label htmlFor="firstName">PRENOM / FIRST NAME:</label>
         <input
           id="firstName"
@@ -175,15 +218,6 @@ export default function Visaaplication({ formData, setFormData }) {
           <option value="widowed">Veuf(ve) / Widowed</option>
         </select>
 
-        <label htmlFor="fatherName">Nom et prenom du Pere / Father's full name:</label>
-        <input
-          id="fatherName"
-          type="text"
-          name="fatherName"
-          value={formData.fatherName}
-          onChange={handleChange}
-        />
-
         <label htmlFor="profession">Profession / Occupation:</label>
         <input
           id="profession"
@@ -212,21 +246,18 @@ export default function Visaaplication({ formData, setFormData }) {
         />
 
         <div className="action-row">
-          <button
-            type="button"
-            className="submit-button"
-            onClick={() => {
-              sessionStorage.removeItem('visaFormData');
-              setFormData((prev) => ({ ...prev, ...initialVisaFormData }));
-              navigate('/');
-            }}
-          >
+          <button type="button" className="submit-button" onClick={() => {
+            sessionStorage.removeItem('visaFormData');
+            setFormData({ ...initialVisaFormData });
+            navigate('/');
+          }}>
             Cancel
           </button>
-          <button type="submit" className="submit-button">
-            Save & Next
+          <button type="submit" className="submit-button" disabled={submitting}>
+            {submitting ? 'Submitting...' : 'Save & Submit'}
           </button>
         </div>
+        {error && <p style={{ color: 'red', marginTop: '8px' }}>{error}</p>}
       </form>
     </div>
   );

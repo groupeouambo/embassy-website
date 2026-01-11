@@ -67,7 +67,7 @@ app.use('/api/signup', authLimiter);
 // Lenient rate limit for visitor tracking (non-critical)
 const visitorLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 30, // Increased to 30 tracking requests per minute per IP
+  max: 60, // Increased to 60 tracking requests per minute per IP
   message: 'Too many tracking requests.',
   standardHeaders: true,
   legacyHeaders: false,
@@ -2407,7 +2407,7 @@ app.get('/api/admin/visitors/recent', authMiddleware, adminMiddleware, async (re
 });
 
 // Heartbeat endpoint - updates last_active timestamp
-app.post('/api/visitor/heartbeat', async (req, res) => {
+app.post('/api/visitor/heartbeat', visitorLimiter, async (req, res) => {
   try {
     const { session_id, page_url } = req.body;
 
