@@ -13,6 +13,7 @@ export default function Signin() {
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [lastAttempt, setLastAttempt] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,6 +24,13 @@ export default function Signin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Prevent rapid-fire submissions (minimum 2 seconds between attempts)
+    const now = Date.now();
+    if (now - lastAttempt < 2000) {
+      setError('Please wait a moment before trying again.');
+      return;
+    }
+
     if (!form.username || !form.password) {
       setError('Please enter email and password.');
       return;
@@ -30,6 +38,7 @@ export default function Signin() {
 
     setLoading(true);
     setError('');
+    setLastAttempt(now);
 
     try {
       const resp = await api.login({ username: form.username, password: form.password });

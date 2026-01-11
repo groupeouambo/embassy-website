@@ -384,7 +384,7 @@ export default function AdminChat() {
                   </div>
 
                   {/* Message Input */}
-                  {selectedConversation.status === 'active' && (
+                  {selectedConversation.status !== 'closed' && (
                     <form onSubmit={handleSendMessage} style={{
                       padding: '16px',
                       borderTop: '1px solid #e5e7eb',
