@@ -44,6 +44,20 @@
   animation: slideUp 0.3s ease;
 }
 
+.chat-widget-window-iframe {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 400px;
+  height: 600px;
+  background: transparent;
+  border-radius: 16px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  z-index: 999;
+  animation: slideUp 0.3s ease;
+}
+
 .chat-iframe-container {
   flex: 1;
   overflow: hidden;
@@ -335,7 +349,8 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .chat-widget-window {
+  .chat-widget-window,
+  .chat-widget-window-iframe {
     width: calc(100vw - 24px);
     height: calc(100vh - 100px);
     right: 12px;
@@ -389,7 +404,8 @@
 }
 
 @media (max-width: 480px) {
-  .chat-widget-window {
+  .chat-widget-window,
+  .chat-widget-window-iframe {
     width: 100vw;
     height: 100vh;
     right: 0;
