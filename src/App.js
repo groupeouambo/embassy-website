@@ -33,7 +33,6 @@ import VisaInfo from './component/services/VisaInfo';
 import MarriageInfo from './component/services/MarriageInfo';
 import BirthCertificateInfo from './component/services/BirthCertificateInfo';
 import TravelPassInfo from './component/services/TravelPassInfo';
-import ChatWidget from './component/chat/ChatWidget';
 import { initialVisaFormData } from './component/visaapplication/visaFormState';
 import AdminVisitors from './component/services/AdminVisitors';
 import AdminReplies from './component/services/AdminReplies';
@@ -202,7 +201,6 @@ function App() {
             <Route path="/" element={<Home/>} />
           </Routes>
           <Footer/>
-          <ChatWidget />
         </div>
       </Router>
     </I18nProvider>
