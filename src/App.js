@@ -73,72 +73,7 @@ const servicePages = [
   { path: '/services/diaspora-organization', title: 'Diaspora Organization', description: 'Resources for diaspora organization and participation.' },
 ];
 
-// Visitor tracking component
-function VisitorTracker() {
-  const { user } = useAuth();
-
-  useEffect(() => {
-    const trackVisitor = async () => {
-      try {
-        // Check if we've already tracked in the last 5 minutes
-        const lastTracked = sessionStorage.getItem('visitor_last_tracked');
-        const now = Date.now();
-
-        if (lastTracked && (now - parseInt(lastTracked)) < 5 * 60 * 1000) {
-          // Skip tracking if within 5 minutes
-          return;
-        }
-
-        // Generate or retrieve session ID
-        let sessionId = sessionStorage.getItem('visitor_session_id');
-        if (!sessionId) {
-          sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-          sessionStorage.setItem('visitor_session_id', sessionId);
-        }
-
-        await api.trackVisitor({
-          page_url: window.location.href,
-          referrer: document.referrer || 'Direct',
-          session_id: sessionId,
-          user_id: user?.id || null, // Include user ID if logged in
-        });
-
-        // Mark as tracked
-        sessionStorage.setItem('visitor_last_tracked', now.toString());
-      } catch (error) {
-        // Silently fail - tracking is non-critical
-        if (process.env.NODE_ENV !== 'production') {
-          console.warn('Visitor tracking skipped:', error.message);
-        }
-      }
-    };
-
-    trackVisitor();
-
-    // Send heartbeat every 30 seconds to show user is still active
-    const heartbeatInterval = setInterval(async () => {
-      const sessionId = sessionStorage.getItem('visitor_session_id');
-      if (sessionId) {
-        try {
-          await api.sendHeartbeat({
-            session_id: sessionId,
-            page_url: window.location.href,
-            user_id: user?.id || null, // Include user ID if logged in
-          });
-        } catch (error) {
-          // Silently fail
-          if (process.env.NODE_ENV !== 'production') {
-            console.warn('Heartbeat failed:', error.message);
-          }
-        }
-      }
-    }, 30000); // Every 30 seconds
-
-    return () => clearInterval(heartbeatInterval);
-  }, [user?.id]); // Re-run when user login state changes
-
-  return null;
-}
+// Visitor tracking removed - was causing rate limiting issues
 
 function App() {
   const [visaFormData, setVisaFormData] = useState(() => {
@@ -154,7 +89,6 @@ function App() {
     <AuthProvider>
       <I18nProvider>
         <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-          <VisitorTracker />
           <div className="App">
             <Navbar />
          
