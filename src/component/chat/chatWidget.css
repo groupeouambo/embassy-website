@@ -64,6 +64,13 @@
   border-radius: 0 0 12px 12px;
 }
 
+.chat-widget-direct {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;
