@@ -55,7 +55,7 @@ export default function ChatWidget() {
           {/* iframe content */}
           <div className="chat-iframe-container">
             <iframe
-              src="https://6000-firebase-studio-1768047378237.cluster-vaxpk4ituncuosfn5e3k7xrloi.cloudworkstations.dev/embed"
+              src="https://studio--studio-7902627835-94ba6.us-central1.hosted.app/embed"
               style={{
                 width: '100%',
                 height: '100%',
