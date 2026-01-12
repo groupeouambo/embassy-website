@@ -32,8 +32,8 @@
   position: fixed;
   bottom: 24px;
   right: 24px;
-  width: 380px;
-  height: 450px;
+  width: 400px;
+  height: 600px;
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
@@ -42,6 +42,12 @@
   overflow: hidden;
   z-index: 999;
   animation: slideUp 0.3s ease;
+}
+
+.chat-iframe-container {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 0 0 12px 12px;
 }
 
 @keyframes slideUp {
