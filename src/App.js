@@ -202,8 +202,8 @@ function App() {
             <Route path="/" element={<Home/>} />
           </Routes>
           <Footer/>
-          <ChatWidget />
         </div>
+        <ChatWidget />
       </Router>
     </I18nProvider>
     </AuthProvider>
