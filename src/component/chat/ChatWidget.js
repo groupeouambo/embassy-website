@@ -1,6 +1,4 @@
-import React from 'react';
 import { useAuth } from '../../context/AuthContext';
-import './chatWidget.css';
 
 export default function ChatWidget() {
   const { isAdmin } = useAuth();
@@ -11,18 +9,19 @@ export default function ChatWidget() {
   }
 
   return (
-    <div className="chat-widget-direct">
-      <iframe
-        src="https://studio--studio-7902627835-94ba6.us-central1.hosted.app/embed"
-        style={{
-          width: '400px',
-          height: '600px',
-          border: 'none',
-          borderRadius: '12px'
-        }}
-        title="ConnectNow Chat"
-        allow="microphone; camera; autoplay; encrypted-media"
-      />
-    </div>
+    <iframe
+      src="https://studio--studio-7902627835-94ba6.us-central1.hosted.app/embed"
+      style={{
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        width: '400px',
+        height: '600px',
+        border: 'none',
+        zIndex: 9999
+      }}
+      title="ConnectNow Chat"
+      allow="microphone; camera; autoplay; encrypted-media"
+    />
   );
 }
