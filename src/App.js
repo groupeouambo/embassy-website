@@ -35,7 +35,6 @@ import BirthCertificateInfo from './component/services/BirthCertificateInfo';
 import TravelPassInfo from './component/services/TravelPassInfo';
 import ChatWidget from './component/chat/ChatWidget';
 import { initialVisaFormData } from './component/visaapplication/visaFormState';
-import { api } from './api';
 import AdminVisitors from './component/services/AdminVisitors';
 import AdminReplies from './component/services/AdminReplies';
 
