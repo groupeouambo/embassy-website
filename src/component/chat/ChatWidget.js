@@ -19,15 +19,7 @@ function ChatWidget() {
   return createPortal(
     <iframe
       src={`${connectNowAppUrl}/embed`}
-      style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        width: '400px',
-        height: '600px',
-        border: 'none',
-        zIndex: 2147483647,
-      }}
+      
       title="ConnectNow Support Chat"
       allow="microphone; camera; autoplay; encrypted-media"
     />,
