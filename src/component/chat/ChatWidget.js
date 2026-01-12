@@ -21,8 +21,6 @@ function ChatWidget() {
         width: '400px',
         height: '600px',
         border: 'none',
-        borderRadius: '10px',
-        boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
         zIndex: 9999,
       }}
       title="ConnectNow Support Chat"
