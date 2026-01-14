@@ -41,16 +41,10 @@
     -->
 
     <!-- KesseDesk Chat Widget -->
-    <script src="https://backend.kessedesk.com/widget/widget.js"></script>
+    <script src="https://api.kessedesk.com/widget/widget.js"></script>
     <script>
-      window.addEventListener('load', function() {
-        if (typeof ChatWidget !== 'undefined' && ChatWidget.init) {
-          ChatWidget.init({
-            apiKey: 'cs_2cef0adcf2ef54004959120ad6912da76974b244aa5885a6ace149c232e7d5dd'
-          });
-        } else {
-          console.error('KesseDesk ChatWidget failed to load');
-        }
+      ChatWidget.init({
+        apiKey: 'cs_2cef0adcf2ef54004959120ad6912da76974b244aa5885a6ace149c232e7d5dd'
       });
     </script>
   </body>
