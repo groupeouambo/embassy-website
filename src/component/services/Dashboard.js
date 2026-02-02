@@ -13,7 +13,6 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
 
-  // Function to fetch applications
   const fetchApplications = async () => {
     if (authLoading) {
       return;
@@ -35,19 +34,17 @@ export default function Dashboard() {
     }
   };
 
-  // Initial load
   useEffect(() => {
     fetchApplications();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAuthenticated, navigate, authLoading]);
 
-  // Auto-refresh every 30 seconds
   useEffect(() => {
     if (authLoading || !isAuthenticated() || !user) return;
 
     const interval = setInterval(() => {
       fetchApplications();
-    }, 30000); // Refresh every 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -66,64 +63,6 @@ export default function Dashboard() {
       setTimeout(() => setCopied(null), 2000);
     });
   };
-
-  const stats = [
-    {
-      label: 'Total Applications',
-      value: apps.length,
-      icon: '📊',
-      className: 'total',
-      change: null
-    },
-    {
-      label: 'Pending',
-      value: apps.filter(a => a.status === 'pending').length,
-      icon: '⏳',
-      className: 'pending',
-      change: null
-    },
-    {
-      label: 'Under Review',
-      value: apps.filter(a => a.status === 'under_review').length,
-      icon: '🔍',
-      className: 'review',
-      change: null
-    },
-    {
-      label: 'Approved',
-      value: apps.filter(a => a.status === 'approved').length,
-      icon: '✅',
-      className: 'approved',
-      change: null
-    },
-  ];
-
-  const quickActions = [
-    {
-      title: 'Visa Application',
-      description: 'Apply for a visa',
-      icon: '✈️',
-      path: '/visaapplication'
-    },
-    {
-      title: 'Birth Certificate',
-      description: 'Request certificate',
-      icon: '👶',
-      path: '/apply/birth-certificate'
-    },
-    {
-      title: 'Marriage Certificate',
-      description: 'Request certificate',
-      icon: '💍',
-      path: '/apply/marriage'
-    },
-    {
-      title: 'Travel Pass',
-      description: 'Emergency document',
-      icon: '🛂',
-      path: '/apply/travel-pass'
-    },
-  ];
 
   const getStatusLabel = (status) => {
     const labels = {
@@ -149,7 +88,7 @@ export default function Dashboard() {
 
   const formatLastUpdate = () => {
     const now = new Date();
-    const diff = Math.floor((now - lastUpdate) / 1000); // seconds
+    const diff = Math.floor((now - lastUpdate) / 1000);
 
     if (diff < 60) return 'Just now';
     if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
@@ -166,40 +105,84 @@ export default function Dashboard() {
     fetchApplications();
   };
 
-  const recentApps = apps.slice(0, 5);
+  const stats = [
+    {
+      label: 'Total applications',
+      value: apps.length,
+      tone: 'indigo'
+    },
+    {
+      label: 'Pending',
+      value: apps.filter(a => a.status === 'pending').length,
+      tone: 'amber'
+    },
+    {
+      label: 'Under review',
+      value: apps.filter(a => a.status === 'under_review').length,
+      tone: 'violet'
+    },
+    {
+      label: 'Approved',
+      value: apps.filter(a => a.status === 'approved').length,
+      tone: 'emerald'
+    },
+  ];
+
+  const quickActions = [
+    {
+      title: 'Visa Application',
+      description: 'Apply for a visa',
+      path: '/visaapplication',
+      tone: 'sky'
+    },
+    {
+      title: 'Birth Certificate',
+      description: 'Request certificate',
+      path: '/apply/birth-certificate',
+      tone: 'rose'
+    },
+    {
+      title: 'Marriage Certificate',
+      description: 'Request certificate',
+      path: '/apply/marriage',
+      tone: 'amber'
+    },
+    {
+      title: 'Travel Pass',
+      description: 'Emergency document',
+      path: '/apply/travel-pass',
+      tone: 'indigo'
+    },
+  ];
 
   const downloadDocuments = [
     {
       title: 'Visa Application Form',
       description: 'Download blank visa application form',
-      icon: '✈️',
       file: '/Visa_Application_Form.pdf',
       type: 'PDF'
     },
     {
       title: 'Birth Certificate Form',
       description: 'Download birth certificate application',
-      icon: '👶',
       file: '/birth-certificate-form.pdf',
       type: 'PDF'
     },
     {
       title: 'Marriage Certificate Form',
       description: 'Download marriage certificate form',
-      icon: '💍',
       file: '/marriage-certificate-form.pdf',
       type: 'PDF'
     },
     {
       title: 'Travel Pass Form',
       description: 'Download travel pass application',
-      icon: '🛂',
       file: '/travel-pass-form.pdf',
       type: 'PDF'
     },
   ];
 
-  const handleDownloadFile = (file, title) => {
+  const handleDownloadFile = (file) => {
     const link = document.createElement('a');
     link.href = file;
     link.download = file.split('/').pop();
@@ -209,235 +192,346 @@ export default function Dashboard() {
     document.body.removeChild(link);
   };
 
+  const recentApps = apps.slice(0, 5);
+  const activityItems = recentApps.map((app) => ({
+    title: `Application #${app.id}`,
+    subtitle: `${getStatusLabel(app.status)} · ${formatDate(app.createdAt)}`
+  }));
+
+  const upcomingSessions = [
+    {
+      date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' }),
+      title: 'No bookings scheduled yet',
+      note: 'New sessions will appear here'
+    }
+  ];
+
+  const sidebarItems = [
+    { label: 'Home', active: true },
+    { label: 'AI Agents', badge: 'NEW' },
+    { label: 'Booking Calendar' },
+    { label: 'Sales' },
+    { label: 'Catalog' },
+    { label: 'Apps', badge: '3' },
+    { label: 'Site & Mobile App' },
+    { label: 'Marketing' },
+    { label: 'Getting Paid' },
+    { label: 'Inbox' },
+    { label: 'Customers & Leads' },
+    { label: 'Analytics' },
+  ];
+
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com';
+
   return (
-    <div className="modern-dashboard">
-      <div className="dashboard-container">
-        {/* Header */}
-        <div className="dashboard-header">
-          <div className="header-content">
-            <div className="user-info">
-              <div className="user-avatar">
-                {getUserInitials()}
-              </div>
-              <div className="user-details">
-                <h1>Welcome back, {user?.firstname || user?.username || 'User'}!</h1>
-                <p>Here's your application overview and quick actions</p>
-              </div>
+    <div className="studio-dashboard">
+      <header className="studio-topbar">
+        <div className="topbar-left">
+          <span className="studio-brand">Ambassade Studio</span>
+          <div className="studio-site">
+            <span className="site-avatar">{getUserInitials()}</span>
+            <span className="site-name">{user?.firstname || user?.username || 'Your Site'}</span>
+          </div>
+        </div>
+        <div className="topbar-center">
+          <nav className="topbar-links">
+            <span>Resources</span>
+            <span>Community</span>
+            <span>Help</span>
+          </nav>
+          <div className="topbar-search">
+            <input type="search" placeholder="Search..." aria-label="Search" />
+          </div>
+        </div>
+        <div className="topbar-right">
+          <button className="topbar-pill">Upgrade</button>
+          <button className="topbar-icon" aria-label="Notifications">
+            <span className="icon-dot" />
+          </button>
+          <button className="topbar-icon" aria-label="Messages">
+            <span className="icon-dot amber" />
+          </button>
+          <button className="topbar-icon" aria-label="Profile">
+            <span className="avatar-mini">{getUserInitials()}</span>
+          </button>
+          <button className="topbar-ai">AI</button>
+        </div>
+      </header>
+
+      <div className="studio-body">
+        <aside className="studio-sidebar">
+          <button className="quick-actions-button">
+            Quick Actions
+            <span className="chevron">v</span>
+          </button>
+          <nav className="sidebar-nav">
+            {sidebarItems.map((item) => (
+              <button
+                key={item.label}
+                className={`sidebar-item ${item.active ? 'active' : ''}`}
+                type="button"
+              >
+                <span className="sidebar-dot" />
+                <span>{item.label}</span>
+                {item.badge && <span className="sidebar-badge">{item.badge}</span>}
+              </button>
+            ))}
+          </nav>
+          <button className="sidebar-footer" onClick={() => navigate('/dashboard/applications')}>
+            Edit Site
+          </button>
+        </aside>
+
+        <main className="studio-main">
+          <div className="welcome-bar">
+            <div>
+              <h1>Welcome back, {user?.firstname || user?.username || 'User'}</h1>
+              <p>Keep track of your applications and recent activity.</p>
             </div>
-            <div className="header-actions">
-              <button className="btn-header btn-white" onClick={() => navigate('/dashboard/applications')}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+            <div className="welcome-actions">
+              <button className="primary-light" onClick={() => navigate('/dashboard/applications')}>
                 My Applications
               </button>
-              <button className="btn-header btn-outline-white" onClick={handleLogout}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+              <button className="ghost-light" onClick={handleLogout}>
                 Logout
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="stats-grid">
-          {stats.map((stat) => (
-            <div key={stat.label} className={`stat-card ${stat.className}`}>
-              <div className="stat-icon">{stat.icon}</div>
-              <div className="stat-value">{stat.value}</div>
-              <div className="stat-label">{stat.label}</div>
-              {stat.change && (
-                <div className={`stat-change ${stat.change > 0 ? 'positive' : 'neutral'}`}>
-                  {stat.change > 0 ? '↑' : '–'} {stat.change > 0 ? `+${stat.change}` : 'No change'} this month
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="quick-actions">
-          <h2>Quick Actions</h2>
-          <div className="actions-grid">
-            {quickActions.map((action) => (
-              <Link
-                key={action.title}
-                to={action.path}
-                className="action-card"
-              >
-                <div className="action-icon">{action.icon}</div>
-                <div className="action-title">{action.title}</div>
-                <div className="action-desc">{action.description}</div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        {/* Downloads Section */}
-        <div className="quick-actions">
-          <h2>Available Downloads</h2>
-          <p style={{ color: '#6b7280', marginBottom: '20px', marginTop: '-8px' }}>
-            Access and download application forms and your submitted documents
-          </p>
-          <div className="actions-grid">
-            {downloadDocuments.map((doc) => (
-              <div
-                key={doc.title}
-                className="action-card"
-                onClick={() => handleDownloadFile(doc.file, doc.title)}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="action-icon">{doc.icon}</div>
-                <div className="action-title">{doc.title}</div>
-                <div className="action-desc">{doc.description}</div>
-                <div style={{
-                  marginTop: '8px',
-                  fontSize: '0.75rem',
-                  color: '#6b7280',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px'
-                }}>
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  {doc.type}
-                </div>
+          <section className="studio-card site-card">
+            <div className="site-card-left">
+              <div className="site-card-avatar">{getUserInitials()}</div>
+              <div>
+                <div className="site-card-title">Core</div>
+                <button className="site-card-link">Manage Plan</button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Applications */}
-        <div className="applications-section">
-          <div className="section-header">
-            <div>
-              <h2>Recent Applications</h2>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style={{ display: 'inline', marginRight: '4px', verticalAlign: 'middle' }}>
-                  <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-                  <polyline points="12 6 12 12 16 14" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Last updated: {formatLastUpdate()}
-              </p>
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                className="view-all-btn"
-                onClick={handleRefresh}
-                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M1 4v6h6M23 20v-6h-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Refresh
-              </button>
-              {apps.length > 0 && (
-                <button className="view-all-btn" onClick={() => navigate('/dashboard/applications')}>
-                  View All Applications →
+            <div className="site-card-center">
+              <div className="site-card-url">{siteUrl}</div>
+              <button className="site-card-link">Manage Domain</button>
+            </div>
+            <div className="site-card-center">
+              <div className="site-card-muted">No business email</div>
+              <button className="site-card-link">Connect</button>
+            </div>
+            <div className="site-card-center">
+              <div className="site-card-muted">No business phone number</div>
+              <button className="site-card-link">Get Google Voice</button>
+            </div>
+            <div className="site-card-right">
+              <button className="ghost-light">Edit Business Info</button>
+            </div>
+          </section>
+
+          <section className="studio-card analytics-card">
+            <div className="card-header">
+              <div className="card-title">
+                <h2>Analytics</h2>
+                <span className="card-pill">No visitors at the moment</span>
+              </div>
+              <div className="card-actions">
+                <button className="link-button">View Your Site Analytics</button>
+                <button className="link-button" onClick={handleRefresh}>
+                  Refresh
                 </button>
-              )}
+              </div>
             </div>
-          </div>
-
-          {loading ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p style={{ color: '#6b7280' }}>Loading your applications...</p>
-            </div>
-          ) : apps.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📋</div>
-              <h3>No Applications Yet</h3>
-              <p>Start your first application to get started with embassy services</p>
-              <button className="start-btn" onClick={() => navigate('/visaapplication')}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path d="M12 4v16m8-8H4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-                Start New Application
-              </button>
-            </div>
-          ) : (
-            <div className="applications-list">
-              {recentApps.map((app) => (
-                <div key={app.id} className="application-card">
-                  <div className="app-header">
-                    <div className="app-info">
-                      <h3>Application #{app.id}</h3>
-                  <div className="app-meta">
-                    <div className="meta-item">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="16" y1="2" x2="16" y2="6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="8" y1="2" x2="8" y2="6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="3" y1="10" x2="21" y2="10" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {formatDate(app.createdAt)}
-                        </div>
-                        <div className="meta-item">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                            <circle cx="12" cy="7" r="4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          {app.displayName}
-                        </div>
-                      </div>
-                    </div>
-                    <div className={`status-badge status-${app.status}`}>
-                      {getStatusLabel(app.status)}
-                    </div>
-                  </div>
-
-                  {app.trackingNumber && (
-                    <div className="tracking-info">
-                      <div>
-                        <div className="tracking-label">Tracking Number</div>
-                        <div className="tracking-number">{app.trackingNumber}</div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        <button
-                          className="copy-btn"
-                          onClick={() => copyToClipboard(app.trackingNumber, app.id)}
-                        >
-                          {copied === app.id ? (
-                            <>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="20 6 9 17 4 12" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                              Copied!
-                            </>
-                          ) : (
-                            <>
-                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                              Copy
-                            </>
-                          )}
-                        </button>
-                        <button
-                          className="copy-btn"
-                          onClick={() => downloadBarcode(app.trackingNumber, `application-${app.id}`)}
-                          title="Download Barcode"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                          Barcode
-                        </button>
-                      </div>
-                    </div>
-                  )}
+            <p className="card-subtitle">Your key stats for the last 7 days</p>
+            <div className="analytics-grid">
+              {stats.map((stat) => (
+                <div key={stat.label} className={`metric-card ${stat.tone}`}>
+                  <div className="metric-label">{stat.label}</div>
+                  <div className="metric-value">{loading ? '...' : stat.value}</div>
+                  <div className="metric-line" />
                 </div>
               ))}
             </div>
-          )}
-        </div>
+            <div className="card-footer">
+              <button className="link-button">Help me grow my site traffic</button>
+              <span className="muted">Updated {formatLastUpdate()}</span>
+            </div>
+          </section>
+
+          <div className="studio-grid">
+            <section className="studio-card activity-card">
+              <div className="card-header">
+                <h2>Activity feed</h2>
+                <div className="segment-control">
+                  <button className="segment active" type="button">Priority</button>
+                  <button className="segment" type="button">Date</button>
+                </div>
+              </div>
+              {activityItems.length === 0 ? (
+                <div className="empty-state">
+                  <div className="empty-title">No updates yet</div>
+                  <div className="empty-subtitle">New activity will appear here.</div>
+                </div>
+              ) : (
+                <div className="activity-list">
+                  {activityItems.map((item) => (
+                    <div key={item.title} className="activity-item">
+                      <span className="activity-dot" />
+                      <div>
+                        <div className="activity-title">{item.title}</div>
+                        <div className="activity-subtitle">{item.subtitle}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="studio-card sessions-card">
+              <div className="card-header">
+                <h2>Upcoming sessions</h2>
+                <button className="link-button">View All</button>
+              </div>
+              <div className="sessions-list">
+                {upcomingSessions.map((session) => (
+                  <div key={session.title} className="session-item">
+                    <span className="session-date">{session.date}</span>
+                    <div>
+                      <div className="session-title">{session.title}</div>
+                      <div className="session-subtitle">{session.note}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <div className="studio-grid">
+            <section className="studio-card quick-actions-card">
+              <div className="card-header">
+                <h2>Quick actions</h2>
+                <button className="link-button" onClick={() => navigate('/dashboard/applications')}>
+                  View all
+                </button>
+              </div>
+              <div className="actions-grid">
+                {quickActions.map((action) => (
+                  <Link
+                    key={action.title}
+                    to={action.path}
+                    className={`action-chip ${action.tone}`}
+                  >
+                    <span className="chip-dot" />
+                    <div>
+                      <div className="chip-title">{action.title}</div>
+                      <div className="chip-subtitle">{action.description}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section className="studio-card downloads-card">
+              <div className="card-header">
+                <h2>Downloads</h2>
+                <button className="link-button">Add files</button>
+              </div>
+              <div className="downloads-list">
+                {downloadDocuments.map((doc) => (
+                  <button
+                    key={doc.title}
+                    className="download-row"
+                    onClick={() => handleDownloadFile(doc.file)}
+                    type="button"
+                  >
+                    <div>
+                      <div className="download-title">{doc.title}</div>
+                      <div className="download-subtitle">{doc.description}</div>
+                    </div>
+                    <span className="download-pill">{doc.type}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          </div>
+
+          <section className="studio-card applications-card">
+            <div className="card-header">
+              <div>
+                <h2>Recent applications</h2>
+                <p className="card-subtitle">Last updated {formatLastUpdate()}</p>
+              </div>
+              <div className="card-actions">
+                <button className="link-button" onClick={handleRefresh}>
+                  Refresh
+                </button>
+                {apps.length > 0 && (
+                  <button className="link-button" onClick={() => navigate('/dashboard/applications')}>
+                    View All Applications
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="loading-state">
+                <div className="spinner" />
+                <p>Loading your applications...</p>
+              </div>
+            ) : apps.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-title">No applications yet</div>
+                <div className="empty-subtitle">Start your first application to get started.</div>
+                <button className="primary-light" onClick={() => navigate('/visaapplication')}>
+                  Start New Application
+                </button>
+              </div>
+            ) : (
+              <div className="applications-list">
+                {recentApps.map((app) => (
+                  <div key={app.id} className="application-card">
+                    <div className="app-header">
+                      <div className="app-info">
+                        <h3>Application #{app.id}</h3>
+                        <div className="app-meta">
+                          <div className="meta-item">
+                            <span className="meta-dot" />
+                            {formatDate(app.createdAt)}
+                          </div>
+                          <div className="meta-item">
+                            <span className="meta-dot" />
+                            {app.displayName}
+                          </div>
+                        </div>
+                      </div>
+                      <div className={`status-badge status-${app.status}`}>
+                        {getStatusLabel(app.status)}
+                      </div>
+                    </div>
+
+                    {app.trackingNumber && (
+                      <div className="tracking-info">
+                        <div>
+                          <div className="tracking-label">Tracking Number</div>
+                          <div className="tracking-number">{app.trackingNumber}</div>
+                        </div>
+                        <div className="tracking-actions">
+                          <button
+                            className="copy-btn"
+                            onClick={() => copyToClipboard(app.trackingNumber, app.id)}
+                          >
+                            {copied === app.id ? 'Copied!' : 'Copy'}
+                          </button>
+                          <button
+                            className="copy-btn secondary"
+                            onClick={() => downloadBarcode(app.trackingNumber, `application-${app.id}`)}
+                            title="Download Barcode"
+                          >
+                            Barcode
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </main>
       </div>
     </div>
   );

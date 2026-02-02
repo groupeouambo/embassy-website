@@ -36,6 +36,7 @@ import TravelPassInfo from './component/services/TravelPassInfo';
 import { initialVisaFormData } from './component/visaapplication/visaFormState';
 import AdminVisitors from './component/services/AdminVisitors';
 import AdminReplies from './component/services/AdminReplies';
+import ServiceInfoPage from './component/services/ServiceInfoPage';
 
 const infoPages = [
   { path: '/embassy/mission', title: 'Embassy Mission', description: 'Learn about the objectives and responsibilities of the Central African Republic Embassy.' },
@@ -59,16 +60,16 @@ const infoPages = [
 ];
 
 const servicePages = [
-  { path: '/services/passport', title: 'Passport', description: 'Information and steps to apply for or renew a passport.' },
-  { path: '/services/consular-id', title: 'Consular ID', description: 'Eligibility and application process for consular ID.' },
-  { path: '/services/birth-certificate', title: 'Birth Certificate', description: 'How to request a birth certificate.' },
-  { path: '/services/minor-birth-certificate', title: 'Minor Child Birth Certificate', description: 'Birth certificate requests for minors.' },
-  { path: '/services/emergency-certificate', title: 'Emergency Certificate', description: 'Travel document guidance for emergencies.' },
-  { path: '/services/marriage-certificate', title: 'Marriage Certificate', description: 'Requesting a marriage certificate.' },
-  { path: '/services/document-authentication', title: 'Document Authentication', description: 'Authentication and legalization of documents.' },
-  { path: '/services/transport-deceased', title: 'Transport of Deceased', description: 'Support and requirements for transporting a loved one.' },
-  { path: '/services/passport-appointment', title: 'Passport Appointment', description: 'Schedule and prepare for a passport appointment.' },
-  { path: '/services/diaspora-organization', title: 'Diaspora Organization', description: 'Resources for diaspora organization and participation.' },
+  { path: '/services/passport', serviceId: 'passport' },
+  { path: '/services/consular-id', serviceId: 'consular-id' },
+  { path: '/services/birth-certificate', serviceId: 'birth-certificate' },
+  { path: '/services/minor-birth-certificate', serviceId: 'minor-birth-certificate' },
+  { path: '/services/emergency-certificate', serviceId: 'emergency-certificate' },
+  { path: '/services/marriage-certificate', serviceId: 'marriage-certificate' },
+  { path: '/services/document-authentication', serviceId: 'document-authentication' },
+  { path: '/services/transport-deceased', serviceId: 'transport-deceased' },
+  { path: '/services/passport-appointment', serviceId: 'passport-appointment' },
+  { path: '/services/diaspora-organization', serviceId: 'diaspora-organization' },
 ];
 
 // Visitor tracking removed - was causing rate limiting issues
@@ -179,7 +180,7 @@ function App() {
               <Route
                 key={page.path}
                 path={page.path}
-                element={<InfoPage title={page.title} description={page.description} />}
+                element={<ServiceInfoPage serviceId={page.serviceId} />}
               />
             ))}
             {infoPages.map((page) => (

@@ -11,7 +11,7 @@ import carousel4 from '../../assets/photo4.jpg';
 import carousel5 from '../../assets/photo5.jpg';
 import dzanga from '../../assets/Dzanga.mp4';
 import dzanga3 from '../../assets/Dzanga3.mp4';
-import photo from '../../assets/sema3.JPG';
+import photo from '../../assets/sema3.jpeg';
 import elephant from '../../assets/elephant.jpg';
 import starlinkImage from '../../assets/startlinkrca.jpeg';
 
