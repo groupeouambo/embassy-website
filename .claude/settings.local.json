@@ -40,7 +40,9 @@
       "Bash(del:*)",
       "Bash(node convert-french-pdf.js:*)",
       "Bash(node migrate-chat-tables.js:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(git fetch:*)",
+      "Bash(CI=true npm run build:*)"
     ]
   }
 }
