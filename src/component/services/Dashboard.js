@@ -195,7 +195,7 @@ export default function Dashboard() {
   const recentApps = apps.slice(0, 5);
   const activityItems = recentApps.map((app) => ({
     title: `Application #${app.id}`,
-    subtitle: `${getStatusLabel(app.status)} · ${formatDate(app.createdAt)}`
+    subtitle: `${getStatusLabel(app.status)} - ${formatDate(app.createdAt)}`
   }));
 
   const upcomingSessions = [
@@ -221,6 +221,21 @@ export default function Dashboard() {
     { label: 'Analytics' },
   ];
 
+  const topMenus = [
+    {
+      label: 'Resources',
+      items: ['Wix Studio Blog', 'App Market', 'Partner Directory', 'Templates', 'Branding Studio']
+    },
+    {
+      label: 'Community',
+      items: ['Forum', 'Events', 'Academy', 'Community Groups', 'Inspiration']
+    },
+    {
+      label: 'Help',
+      items: ['Support Center', 'Contact Us', 'Status', 'Upgrade', 'Keyboard Shortcuts']
+    }
+  ];
+
   const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://yourdomain.com';
 
   return (
@@ -235,9 +250,21 @@ export default function Dashboard() {
         </div>
         <div className="topbar-center">
           <nav className="topbar-links">
-            <span>Resources</span>
-            <span>Community</span>
-            <span>Help</span>
+            {topMenus.map((menu) => (
+              <div key={menu.label} className="topbar-menu">
+                <button className="topbar-menu-button" type="button">
+                  {menu.label}
+                  <span className="menu-caret">v</span>
+                </button>
+                <div className="topbar-dropdown" role="menu" aria-label={`${menu.label} menu`}>
+                  {menu.items.map((item) => (
+                    <button key={item} className="topbar-dropdown-item" type="button">
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </nav>
           <div className="topbar-search">
             <input type="search" placeholder="Search..." aria-label="Search" />
@@ -536,3 +563,4 @@ export default function Dashboard() {
     </div>
   );
 }
+
