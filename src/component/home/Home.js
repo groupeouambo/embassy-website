@@ -1,6 +1,6 @@
 // home.js
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './home.css';
 
@@ -24,27 +24,7 @@ const Home = () => {
     { src: carousel5, title: 'Highlight 5', link: '/highlights/5' },
   ];
 
-  const galleryItems = [
-    { src: elephant, title: 'Dzanga Bai Elephants' },
-    { src: carousel2, title: 'Bangui Riverfront' },
-    { src: carousel3, title: 'Cultural Celebration' },
-    { src: carousel4, title: 'Sunset over CAR' },
-    { src: carousel5, title: 'Cityscape at Dusk' },
-    { src: carousel1, title: 'Community Gathering' },
-  ];
-
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [galleryIndex, setGalleryIndex] = useState(0);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setGalleryIndex((prevIndex) =>
-        prevIndex === galleryItems.length - 1 ? 0 : prevIndex + 1
-      );
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-  }, [galleryItems.length]);
 
   const goToPrevious = () => {
     setCurrentIndex((prevIndex) =>
@@ -64,10 +44,9 @@ const Home = () => {
       <section className="gallery-section">
         <div className="gallery-frame">
           <div className="gallery-image-wrapper">
-            <img src={galleryItems[galleryIndex].src} alt={galleryItems[galleryIndex].title} />
-            <span className="gallery-overlay"></span>
+            <img src={elephant} alt="Dzanga Bai Elephants" />
           </div>
-          <p className="gallery-caption">{galleryItems[galleryIndex].title}</p>
+          <p className="gallery-caption">Dzanga Bai Elephants</p>
         </div>
       </section>
 
