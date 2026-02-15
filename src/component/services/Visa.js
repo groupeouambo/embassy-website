@@ -65,7 +65,7 @@ export default function Visa() {
           <li>Enveloppe retour prépayée (dossiers par courrier)</li>
           <li>Copie du carnet de vaccination fièvre jaune</li>
           <li>Itinéraire de vol</li>
-          <li>Lettre d’invitation ou réservation d’hôtel</li>
+          <li>Lettre d'invitation(par les agences touristique)  et réservation d'hôtel</li>
           <li>Pour passeports officiels : lettre du Département d’État ou d’une mission diplomatique</li>
         </ul>
 
