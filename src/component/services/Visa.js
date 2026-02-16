@@ -28,50 +28,50 @@ export default function Visa() {
       <div className="visa-content">
         <h3 className="visa-notice">{t('visa.notice')}</h3>
         <h3>
-          <span>Central African Republic (R.C.A)</span>
+          <span>{t('visa.country')}</span>
         </h3>
 
         <p>
           {t('visa.notice')}
         </p>
 
-        <p><strong>Procédure de traitement des demandes de visa :</strong></p>
-        <p><strong>Voyageurs officiels avec passeport officiel ou diplomatique :</strong></p>
-        <p>Aucun changement. Les demandes de visa seront traitées par l’Ambassade.</p>
+        <p><strong>{t('visa.processTitle')}</strong></p>
+        <p><strong>{t('visa.officialTravelers')}</strong></p>
+        <p>{t('visa.officialNoChange')}</p>
 
-        <p>La politique de visa pour tourisme, visite et convenance personnelle reste inchangée.</p>
+        <p>{t('visa.tourismPolicy')}</p>
         <p>
-          Les voyageurs au nom d’organisations internationales (ONU, UE, BM, FMI) et ONG ou toute personne entrant en RCA pour travailler pour une ambassade (y compris sous-traitants) doivent d’abord demander l’autorisation au Ministère des Affaires Étrangères.
+          {t('visa.orgTravelers')}
         </p>
 
         <p>
-          <strong>Processus :</strong> L’organisation invitante/sponsorisante soumet la demande au MAE à Bangui.
+          <strong>{t('visa.process')}</strong> {t('visa.processDesc')}
         </p>
 
-        <p><strong>Pièces requises :</strong></p>
+        <p><strong>{t('visa.requiredDocs')}</strong></p>
         <ul>
-          <li>Passeport valide</li>
-          <li>Formulaire de demande de visa complété</li>
-          <li>Photo d’identité fond blanc</li>
-          <li>Lettre de l’employeur confirmant le retour aux USA</li>
+          <li>{t('visa.docPassport')}</li>
+          <li>{t('visa.docForm')}</li>
+          <li>{t('visa.docPhoto')}</li>
+          <li>{t('visa.docEmployer')}</li>
           <li>
-            Frais de visa :
+            {t('visa.docFees')}
             <ul>
-              <li>Court séjour (0-1 mois) : $150</li>
-              <li>Séjour moyen (2-3 mois) : $200</li>
-              <li>Long séjour (3+ mois) : $250</li>
+              <li>{t('visa.feeShort')}</li>
+              <li>{t('visa.feeMedium')}</li>
+              <li>{t('visa.feeLong')}</li>
             </ul>
           </li>
-          <li>Enveloppe retour prépayée (dossiers par courrier)</li>
-          <li>Copie du carnet de vaccination fièvre jaune</li>
-          <li>Itinéraire de vol</li>
-          <li>Lettre d'invitation(par les agences touristique)  et réservation d'hôtel</li>
-          <li>Pour passeports officiels : lettre du Département d’État ou d’une mission diplomatique</li>
+          <li>{t('visa.docEnvelope')}</li>
+          <li>{t('visa.docVaccination')}</li>
+          <li>{t('visa.docFlight')}</li>
+          <li>{t('visa.docInvitation')}</li>
+          <li>{t('visa.docOfficial')}</li>
         </ul>
 
-        <p>Toutes les demandes de visa sont traitées sous 48h.</p>
+        <p>{t('visa.processing48h')}</p>
         <p>
-          Vous pouvez télécharger le formulaire officiel de demande de visa <Link to="/download">ici</Link>.
+          {t('visa.downloadForm')} <Link to="/download">{t('visa.here')}</Link>.
         </p>
       </div>
 
@@ -84,12 +84,12 @@ export default function Visa() {
 
       <div className="visa-content">
         <h3>{t('visa.contactUs')}</h3>
-        <p>Pour contacter un conseiller, consultez la page Contact ou utilisez les informations ci-dessous :</p>
-        <p><strong>Adresse :</strong> 2704 Ontario Rd NW, Washington, DC 20009</p>
-        <p><strong>Centre d’appels :</strong></p>
-        <p><strong>Tél :</strong> (202) 483-7800</p>
-        <p><strong>Heures :</strong> Lundi-Vendredi, 09:00 à 16:00</p>
-        <p><strong>Email Section Consulaire :</strong> centrafricwashington@yahoo.com</p>
+        <p>{t('visa.contactAdviser')}</p>
+        <p><strong>{t('visa.address')}</strong> {t('visa.addressValue')}</p>
+        <p><strong>{t('visa.callCenter')}</strong></p>
+        <p><strong>{t('visa.phone')}</strong> {t('visa.phoneValue')}</p>
+        <p><strong>{t('visa.hours')}</strong> {t('visa.hoursValue')}</p>
+        <p><strong>{t('visa.emailConsular')}</strong> {t('visa.emailValue')}</p>
       </div>
     </div>
   );
