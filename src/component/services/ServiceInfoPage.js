@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { FaFacebook } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import { getServiceData } from './servicePageData';
 import './serviceInfo.css';
@@ -149,9 +150,22 @@ export default function ServiceInfoPage({ serviceId }) {
             <h2>{data.contact.heading}</h2>
             <p>{data.contact.description}</p>
             <div className="contact-info">
-              <p><strong>Email:</strong> {data.contact.email}</p>
-              <p><strong>Phone:</strong> {data.contact.phone}</p>
-              <p><strong>Hours:</strong> {data.contact.hours}</p>
+              {data.contact.facebook && (
+                <p>
+                  <a
+                    href={data.contact.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#1877f2', fontWeight: '600', textDecoration: 'none', fontSize: '1rem' }}
+                  >
+                    <FaFacebook size={24} />
+                    {data.contact.facebookLabel || 'Facebook'}
+                  </a>
+                </p>
+              )}
+              {data.contact.email && <p><strong>Email:</strong> {data.contact.email}</p>}
+              {data.contact.phone && <p><strong>Phone:</strong> {data.contact.phone}</p>}
+              {data.contact.hours && <p><strong>Hours:</strong> {data.contact.hours}</p>}
               {data.contact.afterHours && (
                 <p><strong>After Hours:</strong> {data.contact.afterHours}</p>
               )}

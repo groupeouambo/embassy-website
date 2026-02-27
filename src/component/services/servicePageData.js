@@ -615,52 +615,28 @@ const servicePageData = [
 
   {
     id: 'diaspora-organization',
-    title: 'Diaspora Organization',
-    subtitle: 'Resources and programs for the Central African diaspora community',
+    title: 'SEWA — Diaspora Organization',
+    subtitle: 'Serving and empowering the Central African community in the United States',
     overview: {
-      heading: 'Central African Diaspora in the United States',
-      text: 'The Embassy of the Central African Republic is committed to supporting and engaging with the Central African diaspora community in the United States. We facilitate connections between diaspora members, provide resources for community organizations, and organize events that celebrate Central African culture and heritage.',
+      heading: 'About SEWA',
+      text: 'SEWA (Service, Empowerment, Welfare & Advancement) is a diaspora organization dedicated to the Central African community living in the United States. SEWA works to unite, support, and empower Central Africans abroad by fostering solidarity, preserving cultural identity, and advocating for the well-being of community members. Through social programs, cultural events, and community outreach, SEWA serves as a vital bridge between the diaspora and the Central African Republic.',
     },
     eligibility: {
-      heading: 'Programs & Initiatives',
+      heading: 'What SEWA Does',
       items: [
-        'Diaspora registration and community directory',
-        'Cultural events and celebrations',
-        'Networking opportunities with other Central African nationals',
-        'Information sessions on investment and development opportunities in CAR',
-        'Support for community organizations and associations',
-        'Educational programs and scholarships',
-      ],
-    },
-    processSteps: {
-      heading: 'How to Get Involved',
-      items: [
-        'Step 1: Register with the embassy as a diaspora member',
-        'Step 2: Join our mailing list for event notifications and updates',
-        'Step 3: Attend embassy-organized events and community gatherings',
-        'Step 4: Connect with diaspora organizations in your area',
-        'Step 5: Participate in community development initiatives',
-      ],
-    },
-    applicationOptions: {
-      hasOnlineApplication: true,
-      onlineRoute: '/registration',
-    },
-    importantNotes: {
-      heading: 'Stay Connected',
-      items: [
-        'Registration with the embassy is free and voluntary',
-        'Your information will be kept confidential',
-        'Stay informed about events, programs, and opportunities',
-        'The embassy welcomes suggestions for community programs and events',
+        'Community support and social services for Central Africans in the U.S.',
+        'Cultural events celebrating Central African heritage and traditions',
+        'Networking and solidarity among diaspora members',
+        'Advocacy and representation for community needs',
+        'Information and resources for newly arrived Central Africans',
+        'Coordination with the Embassy on diaspora initiatives',
       ],
     },
     contact: {
-      heading: 'Get in Touch',
-      description: 'For information about diaspora programs and events:',
-      email: 'diaspora@car-embassy.us',
-      phone: '+1 (202) 483-7800',
-      hours: 'Monday - Friday, 9:00 AM - 5:00 PM EST',
+      heading: 'Connect with SEWA',
+      description: 'Reach out to SEWA directly through their Facebook page:',
+      facebook: 'https://www.facebook.com/us.sewa',
+      facebookLabel: 'SEWA on Facebook',
     },
   },
 ];
